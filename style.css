@@ -180,3 +180,30 @@ body {
     min-height: 100px;
 }
 
+/* نافذة الغائبين */
+.absent-list-container {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+#absentTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#absentTable th, #absentTable td {
+    padding: 8px;
+    text-align: right;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+#absentTable th {
+    background: #f0f4ff;
+}
+
+#absentTable tr:hover {
+    background: #e3e6ff;
+}
