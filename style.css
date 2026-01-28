@@ -181,8 +181,12 @@ body {
 }
 
 /* نافذة الغائبين */
-.absent-list-container {
-    max-height: 300px;
+.large-modal {
+    max-width: 600px;
+}
+
+.table-container {
+    max-height: 350px;
     overflow-y: auto;
     margin-top: 10px;
     border: 1px solid #ccc;
@@ -192,18 +196,27 @@ body {
 #absentTable {
     width: 100%;
     border-collapse: collapse;
+    font-size: 14px;
 }
 
 #absentTable th, #absentTable td {
+    border-bottom: 1px solid #ddd;
     padding: 8px;
-    text-align: right;
-    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
 }
 
 #absentTable th {
-    background: #f0f4ff;
+    background-color: #f0f2ff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
-#absentTable tr:hover {
-    background: #e3e6ff;
+#absentSearch {
+    width: 100%;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
 }
