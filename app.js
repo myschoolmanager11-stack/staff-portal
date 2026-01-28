@@ -172,3 +172,4 @@ function sendContactMessage() {
 
     setTimeout(closeContactModal, 500);
 }
+
