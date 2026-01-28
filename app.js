@@ -6,6 +6,7 @@ const viewerToolbar = document.getElementById("viewerToolbar");
 const selectedTitle = document.getElementById("selectedTitle");
 const subTitle = document.getElementById("subTitle");
 const messageBox = document.getElementById("message");
+const PORTAL_NAME = "بوابة الأساتذة والموظفين";
 
 let currentKey = "";
 let qrScanner = null;
@@ -131,13 +132,13 @@ function clearAllLinks() {
     }
 }
 
+/* ===== اتصل بنا ===== */
 function openContactModal() {
-    document.getElementById("dropdownMenu").style.display = "none";
     document.getElementById("contactModal").style.display = "flex";
 
-    document.getElementById("contactEmail").value = "";
-    document.getElementById("contactPhone").value = "";
-    document.getElementById("contactMessage").value = "";
+    contactEmail.value = "";
+    contactPhone.value = "";
+    contactMessage.value = "";
 }
 
 function closeContactModal() {
@@ -145,21 +146,21 @@ function closeContactModal() {
 }
 
 function sendContactMessage() {
-    const email = document.getElementById("contactEmail").value.trim();
-    const phone = document.getElementById("contactPhone").value.trim();
-    const message = document.getElementById("contactMessage").value.trim();
+    const email = contactEmail.value.trim();
+    const phone = contactPhone.value.trim();
+    const message = contactMessage.value.trim();
 
     if (!email || !message) {
         alert("يرجى إدخال البريد الإلكتروني ومضمون الرسالة");
         return;
     }
 
-    const subject = "رسالة من بوابة خدمات الأساتذة";
+    const subject = `رسالة من ${PORTAL_NAME}`;
+
     const body =
-        "البريد الإلكتروني: " + email + "\n" +
-        "رقم الهاتف: " + (phone || "غير مدخل") + "\n\n" +
-        "مضمون الرسالة:\n" +
-        message;
+        `البريد الإلكتروني: ${email}\n` +
+        `رقم الهاتف: ${phone || "غير مدخل"}\n\n` +
+        `مضمون الرسالة:\n${message}`;
 
     const gmailLink =
         "https://mail.google.com/mail/?view=cm&fs=1" +
@@ -171,5 +172,3 @@ function sendContactMessage() {
 
     setTimeout(closeContactModal, 500);
 }
-
-
