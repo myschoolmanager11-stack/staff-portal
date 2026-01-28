@@ -173,3 +173,95 @@ function sendContactMessage() {
     setTimeout(closeContactModal, 500);
 }
 
+// بيانات تجريبية للتلاميذ (ستستبدل لاحقًا بالبيانات الحقيقية)
+const students = [
+    { name: "أحمد محمد", class: "1A" },
+    { name: "سارة علي", class: "2B" },
+    { name: "يوسف كريم", class: "1C" },
+    { name: "ليلى سمير", class: "2A" }
+];
+
+function handleItemClick(name) {
+    document.getElementById("dropdownMenu").style.display = "none";
+
+    if (name === 'إرسال أسماء التلاميذ الغائبين حاليًا') {
+        openAbsentModal();
+        return;
+    }
+
+    currentKey = "drive_" + name;
+    selectedTitle.textContent = name;
+    subTitle.textContent = name;
+
+    const savedLink = localStorage.getItem(currentKey);
+
+    if (savedLink) {
+        loadFile(savedLink);
+    } else {
+        openModal(name);
+    }
+}
+
+// فتح نافذة الغائبين
+function openAbsentModal() {
+    populateAbsentTable();
+    document.getElementById("absentModal").style.display = "flex";
+}
+
+// إغلاق النافذة
+function closeAbsentModal() {
+    document.getElementById("absentModal").style.display = "none";
+}
+
+// تعبئة الجدول بالتلاميذ
+function populateAbsentTable() {
+    const tbody = document.querySelector("#absentTable tbody");
+    tbody.innerHTML = "";
+
+    students.forEach((s, index) => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${s.name}</td>
+            <td>${s.class}</td>
+            <td><input type="checkbox" data-index="${index}"></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// تصفية التلاميذ في البحث
+function filterAbsentList() {
+    const filter = document.getElementById("absentSearch").value.toLowerCase();
+    const rows = document.querySelectorAll("#absentTable tbody tr");
+
+    rows.forEach(row => {
+        const name = row.cells[0].textContent.toLowerCase();
+        const cls = row.cells[1].textContent.toLowerCase();
+        row.style.display = (name.includes(filter) || cls.includes(filter)) ? "" : "none";
+    });
+}
+
+// إرسال التلاميذ المختارين (سيتم استكمال طريقة الإرسال لاحقًا)
+function sendAbsentList() {
+    const checkboxes = document.querySelectorAll("#absentTable tbody input[type=checkbox]");
+    const selected = [];
+
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            const index = cb.dataset.index;
+            selected.push(students[index]);
+        }
+    });
+
+    if (selected.length === 0) {
+        alert("يرجى تحديد تلاميذ على الأقل");
+        return;
+    }
+
+    console.log("التلاميذ المختارون للإرسال:", selected);
+
+    // هنا سنضع لاحقًا كود إرسال البيانات إلى مجلد على Drive
+    alert("سيتم إرسال قائمة التلاميذ المختارين لاحقًا.");
+    closeAbsentModal();
+}
