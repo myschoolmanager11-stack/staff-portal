@@ -131,14 +131,45 @@ function clearAllLinks() {
     }
 }
 
-function openContact() {
+function openContactModal() {
     document.getElementById("dropdownMenu").style.display = "none";
+    document.getElementById("contactModal").style.display = "flex";
 
-    const contactMessage =
-        "📞 الهاتف: 0550 00 00 00\n\n" +
-        "📧 البريد الإلكتروني: myschoolmanager11@gmail.com\n\n" +
-        "💬 WhatsApp: https://wa.me/213550000000";
-
-    alert(contactMessage);
+    document.getElementById("contactEmail").value = "";
+    document.getElementById("contactPhone").value = "";
+    document.getElementById("contactMessage").value = "";
 }
+
+function closeContactModal() {
+    document.getElementById("contactModal").style.display = "none";
+}
+
+function sendContactMessage() {
+    const email = document.getElementById("contactEmail").value.trim();
+    const phone = document.getElementById("contactPhone").value.trim();
+    const message = document.getElementById("contactMessage").value.trim();
+
+    if (!email || !message) {
+        alert("يرجى إدخال البريد الإلكتروني ومضمون الرسالة");
+        return;
+    }
+
+    const subject = "رسالة من بوابة خدمات الأساتذة";
+    const body =
+        "البريد الإلكتروني: " + email + "\n" +
+        "رقم الهاتف: " + (phone || "غير مدخل") + "\n\n" +
+        "مضمون الرسالة:\n" +
+        message;
+
+    const gmailLink =
+        "https://mail.google.com/mail/?view=cm&fs=1" +
+        "&to=myschoolmanager11@gmail.com" +
+        "&su=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
+
+    window.open(gmailLink, "_blank");
+
+    setTimeout(closeContactModal, 500);
+}
+
 
