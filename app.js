@@ -174,8 +174,11 @@ function sendContactMessage() {
 }
 
 // نافذة  انشاء وتحديد وارسال التلاميذ الغائبين
-// رابط CSV المباشر
+// رابط CSV المباشر للقائمة الأصلية للطلاب
 const studentsCSVUrl = "https://drive.google.com/uc?export=download&id=1noZig6S7wWDh8T09SvZSSa4IoI0rmnP_";
+
+// رابط Web App لإضافة التلاميذ إلى Absented.CSV
+const appendWebAppUrl = "https://script.google.com/macros/s/AKfycbw1V4DKL8TPE0jKoO7Fm-Q_BdDmc3B5-3qulrOrqJlTAX-wazSIOZelEL_FOWcj3tWj0A/exec";
 
 let allStudents = [];
 
@@ -207,7 +210,7 @@ function parseCSV(csvText) {
     const result = [];
     for (let i = 1; i < lines.length; i++) { // تخطى العنوان
         const [name, classe] = lines[i].split(";");
-        result.push({ name: name.trim(), classe: classe.trim() });
+        if(name && classe) result.push({ name: name.trim(), classe: classe.trim() });
     }
     return result;
 }
@@ -234,19 +237,38 @@ document.getElementById("absentSearch").addEventListener("input", function() {
     fillAbsentTable(filtered);
 });
 
-// إرسال التلاميذ المحددين (تجريبي الآن)
+// إرسال التلاميذ المحددين إلى Absented.CSV على Drive
 function sendSelectedStudents() {
     const checkboxes = document.querySelectorAll("#absentTable tbody input[type=checkbox]:checked");
     const selected = Array.from(checkboxes).map(cb => {
         const idx = parseInt(cb.getAttribute("data-index"));
         return allStudents[idx];
     });
+
     if (selected.length === 0) {
         alert("لم يتم تحديد أي تلميذ");
         return;
     }
-    // هنا يمكنك لاحقًا إضافة رفع الملف أو إرسال البيانات إلى Drive
-    alert("تم تحديد " + selected.length + " تلميذ/ة:\n" + selected.map(s => s.name + " (" + s.classe + ")").join("\n"));
-    closeAbsentModal();
+
+    // إرسال البيانات عبر POST إلى Web App
+    fetch(appendWebAppUrl, {
+        method: "POST",
+        body: JSON.stringify({ students: selected }),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === "success") {
+            alert("تم إرسال التلاميذ بنجاح إلى الملف على Drive!");
+        } else {
+            alert("حدث خطأ أثناء الإرسال:\n" + data.message);
+        }
+        closeAbsentModal();
+    })
+    .catch(err => {
+        alert("فشل الاتصال بالسكريبت:\n" + err);
+    });
 }
 
