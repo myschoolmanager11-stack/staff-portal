@@ -1,3 +1,15 @@
+/*************************************************
+ * المتغيرات العامة
+ *************************************************/
+const PORTAL_NAME = "بوابة الأساتذة والموظفين";
+
+// رابط Web App (Google Apps Script)
+const WEB_APP_URL =
+    "https://script.google.com/macros/s/AKfycbzAf90OcdZ6HW72YjoCMLhPle6ubvvWdLL5GRMUGjZP3wAogNcQDkLt4W6dqYw33GcU/exec";
+
+/*************************************************
+ * عناصر الواجهة العامة
+ *************************************************/
 const modal = document.getElementById("linkModal");
 const modalTitle = document.getElementById("modalTitle");
 const input = document.getElementById("driveLink");
@@ -6,18 +18,21 @@ const viewerToolbar = document.getElementById("viewerToolbar");
 const selectedTitle = document.getElementById("selectedTitle");
 const subTitle = document.getElementById("subTitle");
 const messageBox = document.getElementById("message");
-const PORTAL_NAME = "بوابة الأساتذة والموظفين";
 
 let currentKey = "";
 let qrScanner = null;
 
-/* ===== القائمة ===== */
+/*************************************************
+ * القائمة
+ *************************************************/
 function toggleMenu() {
     const menu = document.getElementById("dropdownMenu");
     menu.style.display = (menu.style.display === "block") ? "none" : "block";
 }
 
-/* ===== اختيار عنصر ===== */
+/*************************************************
+ * اختيار عنصر
+ *************************************************/
 function handleItemClick(name) {
     document.getElementById("dropdownMenu").style.display = "none";
 
@@ -26,7 +41,6 @@ function handleItemClick(name) {
     subTitle.textContent = name;
 
     const savedLink = localStorage.getItem(currentKey);
-
     if (savedLink) {
         loadFile(savedLink);
     } else {
@@ -34,7 +48,9 @@ function handleItemClick(name) {
     }
 }
 
-/* ===== نافذة الرابط ===== */
+/*************************************************
+ * نافذة الرابط
+ *************************************************/
 function openModal(title) {
     modalTitle.textContent = "إدخال رابط: " + title;
     input.value = "";
@@ -48,7 +64,9 @@ function closeModal() {
     modal.style.display = "none";
 }
 
-/* ===== حفظ ===== */
+/*************************************************
+ * حفظ الرابط
+ *************************************************/
 function saveLink() {
     const link = input.value.trim();
     if (!link) {
@@ -60,7 +78,9 @@ function saveLink() {
     loadFile(link);
 }
 
-/* ===== عرض الملف ===== */
+/*************************************************
+ * عرض الملفات
+ *************************************************/
 function toPreviewLink(link) {
     const match = link.match(/\/d\/([^/]+)/);
     if (!match) return link;
@@ -76,7 +96,9 @@ function loadFile(link) {
     viewer.appendChild(iframe);
 }
 
-/* ===== أزرار المعاينة ===== */
+/*************************************************
+ * أزرار المعاينة
+ *************************************************/
 function editCurrentLink() {
     openModal("تعديل الرابط");
     input.value = localStorage.getItem(currentKey) || "";
@@ -97,7 +119,9 @@ function deleteCurrentLink() {
     }
 }
 
-/* ===== QR ===== */
+/*************************************************
+ * QR Code
+ *************************************************/
 function startQR() {
     const qrDiv = document.getElementById("qr-reader");
     qrDiv.innerHTML = "";
@@ -123,7 +147,9 @@ function stopQR() {
     }
 }
 
-/* ===== مسح الكل ===== */
+/*************************************************
+ * مسح كل الروابط
+ *************************************************/
 function clearAllLinks() {
     document.getElementById("dropdownMenu").style.display = "none";
     if (confirm("⚠️ هل تريد مسح جميع الروابط المحفوظة؟")) {
@@ -132,10 +158,11 @@ function clearAllLinks() {
     }
 }
 
-/* ===== اتصل بنا ===== */
+/*************************************************
+ * اتصل بنا
+ *************************************************/
 function openContactModal() {
     document.getElementById("contactModal").style.display = "flex";
-
     contactEmail.value = "";
     contactPhone.value = "";
     contactMessage.value = "";
@@ -156,7 +183,6 @@ function sendContactMessage() {
     }
 
     const subject = `رسالة من ${PORTAL_NAME}`;
-
     const body =
         `البريد الإلكتروني: ${email}\n` +
         `رقم الهاتف: ${phone || "غير مدخل"}\n\n` +
@@ -169,48 +195,49 @@ function sendContactMessage() {
         "&body=" + encodeURIComponent(body);
 
     window.open(gmailLink, "_blank");
-
     setTimeout(closeContactModal, 500);
 }
 
-// نافذة  انشاء وتحديد وارسال التلاميذ الغائبين
-// رابط CSV المباشر للقائمة الأصلية للطلاب
-const studentsCSVUrl = "https://drive.google.com/uc?export=download&id=1noZig6S7wWDh8T09SvZSSa4IoI0rmnP_";
-
-// رابط Web App لإضافة التلاميذ إلى Absented.CSV
-const appendWebAppUrl = "https://script.google.com/macros/s/AKfycbw1V4DKL8TPE0jKoO7Fm-Q_BdDmc3B5-3qulrOrqJlTAX-wazSIOZelEL_FOWcj3tWj0A/exec";
-
+/*************************************************
+ * نافذة الغياب
+ *************************************************/
 let allStudents = [];
 
-// فتح المودال عند الضغط على القائمة
+// فتح نافذة الغياب
 function handleAbsentClick() {
     document.getElementById("absentModal").style.display = "flex";
-    loadStudentsCSV();
+    loadStudents();
 }
 
-// إغلاق المودال
+// إغلاقها
 function closeAbsentModal() {
     document.getElementById("absentModal").style.display = "none";
 }
 
-// تحميل CSV من Drive وتحويله إلى جدول
-function loadStudentsCSV() {
-    fetch(studentsCSVUrl)
-        .then(response => response.text())
-        .then(data => {
-            allStudents = parseCSV(data);
+// تحميل قائمة التلاميذ عبر Web App
+function loadStudents() {
+    fetch(WEB_APP_URL)
+        .then(res => res.text())
+        .then(csv => {
+            allStudents = parseCSV(csv);
             fillAbsentTable(allStudents);
         })
-        .catch(err => alert("حدث خطأ في تحميل ملف التلاميذ:\n" + err));
+        .catch(err => alert("❌ فشل تحميل قائمة التلاميذ:\n" + err));
 }
 
-// تحويل CSV إلى مصفوفة
+// تحويل CSV
 function parseCSV(csvText) {
     const lines = csvText.trim().split("\n");
     const result = [];
-    for (let i = 1; i < lines.length; i++) { // تخطى العنوان
-        const [name, classe] = lines[i].split(";");
-        if(name && classe) result.push({ name: name.trim(), classe: classe.trim() });
+
+    for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(";");
+        if (parts.length >= 2) {
+            result.push({
+                name: parts[0].trim(),
+                classe: parts[1].trim()
+            });
+        }
     }
     return result;
 }
@@ -219,56 +246,57 @@ function parseCSV(csvText) {
 function fillAbsentTable(students) {
     const tbody = document.querySelector("#absentTable tbody");
     tbody.innerHTML = "";
+
     students.forEach((s, idx) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
             <td>${s.name}</td>
             <td>${s.classe}</td>
             <td><input type="checkbox" data-index="${idx}"></td>
         `;
-        tbody.appendChild(row);
+        tbody.appendChild(tr);
     });
 }
 
-// البحث الفوري
-document.getElementById("absentSearch").addEventListener("input", function() {
-    const query = this.value.toLowerCase();
-    const filtered = allStudents.filter(s => s.name.toLowerCase().includes(query) || s.classe.toLowerCase().includes(query));
-    fillAbsentTable(filtered);
+// البحث
+document.getElementById("absentSearch").addEventListener("input", function () {
+    const q = this.value.toLowerCase();
+    fillAbsentTable(
+        allStudents.filter(s =>
+            s.name.toLowerCase().includes(q) ||
+            s.classe.toLowerCase().includes(q)
+        )
+    );
 });
 
-// إرسال التلاميذ المحددين إلى Absented.CSV على Drive
+// إرسال الغائبين
 function sendSelectedStudents() {
-    const checkboxes = document.querySelectorAll("#absentTable tbody input[type=checkbox]:checked");
-    const selected = Array.from(checkboxes).map(cb => {
-        const idx = parseInt(cb.getAttribute("data-index"));
-        return allStudents[idx];
-    });
+    const checked = document.querySelectorAll(
+        "#absentTable tbody input[type=checkbox]:checked"
+    );
 
-    if (selected.length === 0) {
+    if (checked.length === 0) {
         alert("لم يتم تحديد أي تلميذ");
         return;
     }
 
-    // إرسال البيانات عبر POST إلى Web App
-    fetch(appendWebAppUrl, {
-        method: "POST",
-        body: JSON.stringify({ students: selected }),
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.status === "success") {
-            alert("تم إرسال التلاميذ بنجاح إلى الملف على Drive!");
-        } else {
-            alert("حدث خطأ أثناء الإرسال:\n" + data.message);
-        }
-        closeAbsentModal();
-    })
-    .catch(err => {
-        alert("فشل الاتصال بالسكريبت:\n" + err);
+    const selected = Array.from(checked).map(cb => {
+        return allStudents[parseInt(cb.dataset.index)];
     });
-}
 
+    fetch(WEB_APP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ students: selected })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert("✅ تم إرسال الغائبين بنجاح");
+            closeAbsentModal();
+        } else {
+            alert("❌ خطأ:\n" + data.message);
+        }
+    })
+    .catch(err => alert("❌ فشل الاتصال:\n" + err));
+}
