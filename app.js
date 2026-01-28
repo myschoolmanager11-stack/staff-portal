@@ -173,95 +173,80 @@ function sendContactMessage() {
     setTimeout(closeContactModal, 500);
 }
 
-// بيانات تجريبية للتلاميذ (ستستبدل لاحقًا بالبيانات الحقيقية)
-const students = [
-    { name: "أحمد محمد", class: "1A" },
-    { name: "سارة علي", class: "2B" },
-    { name: "يوسف كريم", class: "1C" },
-    { name: "ليلى سمير", class: "2A" }
-];
+// نافذة  انشاء وتحديد وارسال التلاميذ الغائبين
+// رابط CSV المباشر
+const studentsCSVUrl = "https://drive.google.com/uc?export=download&id=1noZig6S7wWDh8T09SvZSSa4IoI0rmnP_";
 
-function handleItemClick(name) {
-    document.getElementById("dropdownMenu").style.display = "none";
+let allStudents = [];
 
-    if (name === 'إرسال أسماء التلاميذ الغائبين حاليًا') {
-        openAbsentModal();
-        return;
-    }
-
-    currentKey = "drive_" + name;
-    selectedTitle.textContent = name;
-    subTitle.textContent = name;
-
-    const savedLink = localStorage.getItem(currentKey);
-
-    if (savedLink) {
-        loadFile(savedLink);
-    } else {
-        openModal(name);
-    }
-}
-
-// فتح نافذة الغائبين
-function openAbsentModal() {
-    populateAbsentTable();
+// فتح المودال عند الضغط على القائمة
+function handleAbsentClick() {
     document.getElementById("absentModal").style.display = "flex";
+    loadStudentsCSV();
 }
 
-// إغلاق النافذة
+// إغلاق المودال
 function closeAbsentModal() {
     document.getElementById("absentModal").style.display = "none";
 }
 
-// تعبئة الجدول بالتلاميذ
-function populateAbsentTable() {
+// تحميل CSV من Drive وتحويله إلى جدول
+function loadStudentsCSV() {
+    fetch(studentsCSVUrl)
+        .then(response => response.text())
+        .then(data => {
+            allStudents = parseCSV(data);
+            fillAbsentTable(allStudents);
+        })
+        .catch(err => alert("حدث خطأ في تحميل ملف التلاميذ:\n" + err));
+}
+
+// تحويل CSV إلى مصفوفة
+function parseCSV(csvText) {
+    const lines = csvText.trim().split("\n");
+    const result = [];
+    for (let i = 1; i < lines.length; i++) { // تخطى العنوان
+        const [name, classe] = lines[i].split(";");
+        result.push({ name: name.trim(), classe: classe.trim() });
+    }
+    return result;
+}
+
+// ملء الجدول
+function fillAbsentTable(students) {
     const tbody = document.querySelector("#absentTable tbody");
     tbody.innerHTML = "";
-
-    students.forEach((s, index) => {
+    students.forEach((s, idx) => {
         const row = document.createElement("tr");
-
         row.innerHTML = `
             <td>${s.name}</td>
-            <td>${s.class}</td>
-            <td><input type="checkbox" data-index="${index}"></td>
+            <td>${s.classe}</td>
+            <td><input type="checkbox" data-index="${idx}"></td>
         `;
         tbody.appendChild(row);
     });
 }
 
-// تصفية التلاميذ في البحث
-function filterAbsentList() {
-    const filter = document.getElementById("absentSearch").value.toLowerCase();
-    const rows = document.querySelectorAll("#absentTable tbody tr");
+// البحث الفوري
+document.getElementById("absentSearch").addEventListener("input", function() {
+    const query = this.value.toLowerCase();
+    const filtered = allStudents.filter(s => s.name.toLowerCase().includes(query) || s.classe.toLowerCase().includes(query));
+    fillAbsentTable(filtered);
+});
 
-    rows.forEach(row => {
-        const name = row.cells[0].textContent.toLowerCase();
-        const cls = row.cells[1].textContent.toLowerCase();
-        row.style.display = (name.includes(filter) || cls.includes(filter)) ? "" : "none";
+// إرسال التلاميذ المحددين (تجريبي الآن)
+function sendSelectedStudents() {
+    const checkboxes = document.querySelectorAll("#absentTable tbody input[type=checkbox]:checked");
+    const selected = Array.from(checkboxes).map(cb => {
+        const idx = parseInt(cb.getAttribute("data-index"));
+        return allStudents[idx];
     });
-}
-
-// إرسال التلاميذ المختارين (سيتم استكمال طريقة الإرسال لاحقًا)
-function sendAbsentList() {
-    const checkboxes = document.querySelectorAll("#absentTable tbody input[type=checkbox]");
-    const selected = [];
-
-    checkboxes.forEach(cb => {
-        if (cb.checked) {
-            const index = cb.dataset.index;
-            selected.push(students[index]);
-        }
-    });
-
     if (selected.length === 0) {
-        alert("يرجى تحديد تلاميذ على الأقل");
+        alert("لم يتم تحديد أي تلميذ");
         return;
     }
-
-    console.log("التلاميذ المختارون للإرسال:", selected);
-
-    // هنا سنضع لاحقًا كود إرسال البيانات إلى مجلد على Drive
-    alert("سيتم إرسال قائمة التلاميذ المختارين لاحقًا.");
+    // هنا يمكنك لاحقًا إضافة رفع الملف أو إرسال البيانات إلى Drive
+    alert("تم تحديد " + selected.length + " تلميذ/ة:\n" + selected.map(s => s.name + " (" + s.classe + ")").join("\n"));
     closeAbsentModal();
 }
+
