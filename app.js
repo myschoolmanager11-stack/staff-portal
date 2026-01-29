@@ -271,7 +271,15 @@ function sendSelectedStudents() {
         return;
     }
 
-    const textList = selected.map(s => `${s.name} | ${s.classe}`).join("\n");
+    const now = new Date();
+const hour =
+    now.getHours().toString().padStart(2, "0") +
+    ":" +
+    now.getMinutes().toString().padStart(2, "0");
+
+const textList = selected.map(s =>
+    `${s.name} ; ${s.classe} ; ${hour}`
+).join("\n");
 
     fetch(appendWebAppUrl + "?action=addAbsent&list=" + encodeURIComponent(textList))
         .then(res => res.json())
@@ -328,6 +336,7 @@ function sendContactMessage() {
     window.open(gmailLink, "_blank");
     setTimeout(closeContactModal, 500);
 }
+
 
 
 
