@@ -21,7 +21,7 @@ let qrScanner = null;
 
 // Web App لجلب قائمة التلاميذ (JSON)
 const studentsWebAppUrl =
-    "https://script.google.com/macros/s/AKfycbzAf90OcdZ6HW72YjoCMLhPle6ubvvWdLL5GRMUGjZP3wAogNcQDkLt4W6dqYw33GcU/exec";
+    "https://script.google.com/macros/s/AKfycbw33okZKweZUgD3grrJKsimz9hdZaIHSt0gimZ061REl2E_UWvTCsAT95rKPa2Ffn_c8A/exec";
 
 // Web App للإضافة إلى Absented.CSV
 const appendWebAppUrl =
@@ -242,3 +242,4 @@ function sendSelectedStudents() {
         console.error(err);
     });
 }
+
