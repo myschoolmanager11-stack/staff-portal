@@ -43,6 +43,8 @@ body {
 
 /* ===== القائمة ===== */
 .dropdown-menu {
+    font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+    font-size: 8.5pt;
     position: absolute;
     top: 55px;
     right: 10px;
@@ -238,6 +240,7 @@ body {
     50%  { opacity: 1; }
     100% { opacity: 0.3; }
 }
+
 
 
 
