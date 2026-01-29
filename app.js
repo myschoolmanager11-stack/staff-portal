@@ -260,31 +260,35 @@ function reloadStudents() {
    إرسال الغائبين
 ======================= */
 function sendSelectedStudents() {
-    const teacher = document.getElementById("teacherName").value.trim();
-    const subject = document.getElementById("subjectName").value.trim();
-    const now = new Date();
-    const hour = now.getHours().toString().padStart(2,"0"); // الساعة فقط
+    const checked = document.querySelectorAll(
+        "#absentTable tbody input[type=checkbox]:checked"
+    );
 
-    // مفتاح لتسجيل آخر إرسال لكل أستاذ/مادة
-    const key = `lastSent_${teacher}_${subject}`;
-    const lastHour = localStorage.getItem(key);
-
-    if (lastHour === hour) {
-        if (!confirm("⚠️ لقد تم إرسال قائمة هذا الأستاذ والمادة في هذه الساعة بالفعل. هل تريد الإرسال مرة أخرى؟")) {
-            return;
-        }
-    }
-
-    const checked = document.querySelectorAll("#absentTable tbody input[type=checkbox]:checked");
     const selected = Array.from(checked).map(cb => visibleStudents[parseInt(cb.dataset.id)]);
+
     if (selected.length === 0) {
         alert("لم يتم تحديد أي تلميذ");
         return;
     }
 
-    // تجهيز النص
-    let textList = "\n========================================\n"; // سطر فارغ قبل الفاصل
-    textList += `الأستاذ: ${teacher}  مادة ${subject}  ${hour}\n\n`; // سطر فارغ بعد اسم الأستاذ
+    // جلب اسم الأستاذ والمادة من الحقول وحفظها
+    const teacher = document.getElementById("teacherName").value.trim();
+    const subject = document.getElementById("subjectName").value.trim();
+    const classe = document.getElementById("classeFilter").value || ""; // القسم المختار
+    
+    localStorage.setItem("teacherName", teacher);
+    localStorage.setItem("subjectName", subject);
+
+    // الحصول على الساعة الحالية بأربعة أرقام
+    const now = new Date();
+    const hour = now.getHours().toString().padStart(2, "0") + ":" +
+                 now.getMinutes().toString().padStart(2, "0");
+
+    // تجهيز النص للإرسال
+    let textList = "\n============================================\n"; // سطر فارغ قبل الفاصل
+    textList += `الأستاذ: ${teacher}  مادة ${subject}  ${hour}` + (classe ? "  / " + classe : "") + "\n\n";
+
+    // إضافة التلاميذ بدون الساعة
     textList += selected.map(s => `${s.name} ; ${s.classe}`).join("\n");
 
     // إرسال البيانات
@@ -293,10 +297,6 @@ function sendSelectedStudents() {
         .then(data => {
             if (data.status === "success") {
                 alert("✅ تم إرسال القائمة بنجاح");
-                localStorage.setItem(key, hour); // تسجيل آخر إرسال
-                // حفظ القيم لتعبئة المرة القادمة
-                localStorage.setItem("teacherName", teacher);
-                localStorage.setItem("subjectName", subject);
             } else {
                 alert("❌ خطأ أثناء الإرسال: " + (data.message || ""));
             }
@@ -307,7 +307,6 @@ function sendSelectedStudents() {
             console.error(err);
         });
 }
-
 
 /* =======================
    اتصل بنا
@@ -361,6 +360,7 @@ function handleAbsentClick() {
 
     loadStudents();
 }
+
 
 
 
