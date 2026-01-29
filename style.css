@@ -181,15 +181,26 @@ body {
 }
 
 
-/* نافذة الغائبين */
-.large-modal {
-    max-width: 600px;
+/* نافذة الغياب */
+.absent-filters {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+#classeFilter {
+    flex: 1;
+    padding: 6px;
+}
+
+.refresh-btn {
+    padding: 6px 10px;
+    cursor: pointer;
 }
 
 .table-container {
     max-height: 350px;
     overflow-y: auto;
-    margin-top: 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
 }
@@ -197,28 +208,18 @@ body {
 #absentTable {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
-}
-
-#absentTable th, #absentTable td {
-    border-bottom: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
 }
 
 #absentTable th {
-    background-color: #f0f2ff;
-    position: sticky;
-    top: 0;
-    z-index: 1;
+    background: #eef0ff;
 }
 
-#absentSearch {
-    width: 100%;
-    padding: 6px 8px;
-    margin-bottom: 6px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 14px;
+#absentTable th, #absentTable td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
 }
+
+#absentTable tr:hover {
+    background: #f6f8ff;
+
 
