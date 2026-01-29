@@ -283,7 +283,7 @@ function sendSelectedStudents() {
     }
 
     // تجهيز النص
-    let textList = "============================\n";
+    let textList = "\n========================================\n"; // سطر فارغ قبل الفاصل
     textList += `الأستاذ: ${teacher}  مادة ${subject}  ${hour}\n\n`; // سطر فارغ بعد اسم الأستاذ
     textList += selected.map(s => `${s.name} ; ${s.classe}`).join("\n");
 
@@ -361,6 +361,7 @@ function handleAbsentClick() {
 
     loadStudents();
 }
+
 
 
 
