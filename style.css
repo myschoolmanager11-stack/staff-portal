@@ -180,6 +180,7 @@ body {
     min-height: 100px;
 }
 
+
 /* نافذة الغائبين */
 .large-modal {
     max-width: 600px;
@@ -220,3 +221,4 @@ body {
     border-radius: 6px;
     font-size: 14px;
 }
+
