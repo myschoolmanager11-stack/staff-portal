@@ -171,16 +171,23 @@ function loadStudents() {
             if (!res.ok) {
                 throw new Error("HTTP Error " + res.status);
             }
-            return res.json();
+            return res.text(); // ✅ نقرأ كنص
         })
-        .then(data => {
-            if (data.status !== "success") {
-                throw new Error(data.message || "Invalid response");
+        .then(text => {
+
+            // تقسيم الملف إلى أسطر
+            const lines = text
+                .split("\n")
+                .map(l => l.trim())
+                .filter(l => l !== "");
+
+            if (lines.length === 0) {
+                throw new Error("ملف التلاميذ فارغ");
             }
 
-            // students = ["أحمد محمد;1A", ...]
-            allStudents = (data.students || []).map(line => {
+            allStudents = lines.map(line => {
                 const parts = line.split(";");
+
                 return {
                     name: parts[0] ? parts[0].trim() : "",
                     classe: parts[1] ? parts[1].trim() : ""
@@ -309,5 +316,6 @@ function sendContactMessage() {
     window.open(gmailLink, "_blank");
     setTimeout(closeContactModal, 500);
 }
+
 
 
