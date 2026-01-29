@@ -17,17 +17,14 @@ let qrScanner = null;
 /* =======================
    روابط Google Apps Script
 ======================= */
-
-// Web App لجلب قائمة التلاميذ (JSON)
 const studentsWebAppUrl =
     "https://script.google.com/macros/s/AKfycbzPfR162O1e2RD_5YRJTySOUHnR1PYhrhs3EpwmkQq4fQM8CBlwOUMO4o24d1GHQTQdNQ/exec";
 
-// Web App للإضافة إلى Absented.CSV
 const appendWebAppUrl =
     "https://script.google.com/macros/s/AKfycbzPfR162O1e2RD_5YRJTySOUHnR1PYhrhs3EpwmkQq4fQM8CBlwOUMO4o24d1GHQTQdNQ/exec";
 
 let allStudents = [];      // كل التلاميذ
-let visibleStudents = []; // التلاميذ المعروضون بعد البحث
+let visibleStudents = [];  // التلاميذ المعروضون بعد البحث
 
 /* =======================
    القائمة
@@ -37,9 +34,6 @@ function toggleMenu() {
     menu.style.display = (menu.style.display === "block") ? "none" : "block";
 }
 
-/* =======================
-   عناصر القائمة
-======================= */
 function handleItemClick(name) {
     document.getElementById("dropdownMenu").style.display = "none";
     selectedTitle.textContent = name;
@@ -146,6 +140,16 @@ function stopQR() {
     }
 }
 
+
+/* ===== مسح الكل ===== */
+function clearAllLinks() {
+    document.getElementById("dropdownMenu").style.display = "none";
+    if (confirm("⚠️ هل تريد مسح جميع الروابط المحفوظة؟")) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
 /* =======================
    نافذة الغياب
 ======================= */
@@ -169,7 +173,7 @@ function loadStudents() {
                 throw data.message;
             }
 
-            // تحويل النصوص "أحمد محمد;1A" إلى كائنات
+            // تحويل كل سطر "أحمد محمد;1A" إلى كائن {name, classe}
             allStudents = (data.students || []).map(item => {
                 const parts = item.split(";");
                 return {
@@ -234,7 +238,7 @@ function sendSelectedStudents() {
         return;
     }
 
-    // تحويل القائمة إلى نص TXT
+    // تحويل القائمة إلى نص TXT "الاسم | القسم"
     const textList = selected
         .map(s => `${s.name} | ${s.classe}`)
         .join("\n");
@@ -260,10 +264,11 @@ function sendSelectedStudents() {
         });
 }
 
-/* ===== اتصل بنا ===== */
+/* =======================
+   اتصل بنا
+======================= */
 function openContactModal() {
     document.getElementById("contactModal").style.display = "flex";
-
     contactEmail.value = "";
     contactPhone.value = "";
     contactMessage.value = "";
@@ -284,7 +289,6 @@ function sendContactMessage() {
     }
 
     const subject = `رسالة من ${PORTAL_NAME}`;
-
     const body =
         `البريد الإلكتروني: ${email}\n` +
         `رقم الهاتف: ${phone || "غير مدخل"}\n\n` +
@@ -297,10 +301,5 @@ function sendContactMessage() {
         "&body=" + encodeURIComponent(body);
 
     window.open(gmailLink, "_blank");
-
     setTimeout(closeContactModal, 500);
 }
-
-
-
-
