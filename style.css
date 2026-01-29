@@ -9,7 +9,7 @@ textarea,
 table,
 th,
 td {
-    font-family: Tahoma, Arial, sans-serif;
+    font-family: Segoe UI", Tahoma, Arial, sans-serif;
     font-size: 8.5pt;
 }
 
@@ -256,6 +256,7 @@ body {
     50%  { opacity: 1; }
     100% { opacity: 0.3; }
 }
+
 
 
 
