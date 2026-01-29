@@ -283,8 +283,9 @@ function sendSelectedStudents() {
     }
 
     // إعداد النص
-    let textList = "=========================================================\n";
+    let textList = "=========================================\n";
     textList += `الأستاذ: ${teacher}  مادة ${subject}\n`;
+   let textList = "\n";
     textList += selected.map(s => `${s.name} ; ${s.classe} ; ${hour}`).join("\n");
 
     // إرسال البيانات
@@ -361,6 +362,7 @@ function handleAbsentClick() {
 
     loadStudents();
 }
+
 
 
 
