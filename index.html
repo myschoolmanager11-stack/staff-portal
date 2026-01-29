@@ -102,34 +102,36 @@
     </div>
 </div>
 
-<!-- نافذة اختيار التلاميذ الغائبين -->
+<!-- نافذة الغياب -->
 <div class="modal" id="absentModal">
     <div class="modal-content large-modal">
-        <h3>حدد التلاميذ الغائبين</h3>
+        <h3>📋 تحديد التلاميذ الغائبين</h3>
 
-        <!-- شريط البحث -->
-        <input type="text" id="absentSearch" placeholder="ابحث عن التلميذ بالاسم أو القسم">
+        <div class="absent-filters">
+            <select id="classeFilter">
+                <option value="">📚 كل الأقسام</option>
+            </select>
+            <button class="refresh-btn" onclick="reloadStudents()">🔄</button>
+        </div>
 
-        <!-- الجدول -->
+        <input type="text" id="absentSearch" placeholder="🔍 البحث بالاسم">
+
         <div class="table-container">
             <table id="absentTable">
                 <thead>
                     <tr>
-                        <th>اسم ولقب التلميذ</th>
-                        <th>القسم</th>
                         <th>تحديد</th>
+                        <th>الاسم واللقب</th>
+                        <th>القسم</th>
                     </tr>
                 </thead>
-                <tbody id="studentsTableBody">
-                    <!-- سيتم ملؤه ديناميكيًا من CSV -->
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
 
-        <!-- زر إرسال -->
         <div class="modal-buttons">
             <button class="save" onclick="sendSelectedStudents()">📤 إرسال</button>
-            <button class="close" onclick="closeAbsentModal()">✖ إغلاق</button>
+            <button class="close" onclick="closeAbsentModal()">✖</button>
         </div>
     </div>
 </div>
