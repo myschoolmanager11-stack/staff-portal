@@ -186,14 +186,12 @@ function loadStudents() {
             fillClasseFilter(allStudents);
             fillAbsentTable(visibleStudents);
            
-       })
-        catch(err => {
-            alert("❌ فشل تحميل قائمة التلاميذ");
-            console.error("LOAD STUDENTS ERROR:", err);
+             })
+        .catch(err => {
+            alert("فشل تحميل القائمة");
+            console.error(err);
         })
-        .finally(() => {
-            hideLoading();
-        });
+        .finally(hideLoading);
 }
 
 /* تعبئة الأقسام */
@@ -330,5 +328,6 @@ function sendContactMessage() {
     window.open(gmailLink, "_blank");
     setTimeout(closeContactModal, 500);
 }
+
 
 
