@@ -272,22 +272,24 @@ function sendSelectedStudents() {
     }
 
     const now = new Date();
-const hour =
-    now.getHours().toString().padStart(2, "0") +
-    ":" +
-    now.getMinutes().toString().padStart(2, "0");
+    const hour =
+        now.getHours().toString().padStart(2, "0") +
+        ":" +
+        now.getMinutes().toString().padStart(2, "0");
 
-const textList = selected.map(s =>
-    `${s.name} ; ${s.classe} ; ${hour}`
-).join("\n");
+    // تجهيز القائمة للارسال بشكل ذكي
+    const textList = selected.map(s =>
+        `${s.name} ; ${s.classe} ; ${hour}`
+    ).join("\n");
 
+    // إرسال البيانات إلى Google Apps Script
     fetch(appendWebAppUrl + "?action=addAbsent&list=" + encodeURIComponent(textList))
         .then(res => res.json())
         .then(data => {
             if (data.status === "success") {
                 alert("✅ تم إرسال القائمة بنجاح");
             } else {
-                alert("❌ خطأ أثناء الإرسال");
+                alert("❌ خطأ أثناء الإرسال: " + (data.message || ""));
             }
             closeAbsentModal();
         })
@@ -336,6 +338,7 @@ function sendContactMessage() {
     window.open(gmailLink, "_blank");
     setTimeout(closeContactModal, 500);
 }
+
 
 
 
