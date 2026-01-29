@@ -166,16 +166,21 @@ function closeAbsentModal() {
    تحميل التلاميذ من TXT
 ======================= */
 function loadStudents() {
-    fetch(studentsWebAppUrl + "?action=students")
-        .then(res => res.json())
+    fetch(studentsWebAppUrl)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("HTTP Error " + res.status);
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.status !== "success") {
-                throw data.message;
+                throw new Error(data.message || "Invalid response");
             }
 
-            // تحويل كل سطر "أحمد محمد;1A" إلى كائن {name, classe}
-            allStudents = (data.students || []).map(item => {
-                const parts = item.split(";");
+            // students = ["أحمد محمد;1A", ...]
+            allStudents = (data.students || []).map(line => {
+                const parts = line.split(";");
                 return {
                     name: parts[0] ? parts[0].trim() : "",
                     classe: parts[1] ? parts[1].trim() : ""
@@ -187,9 +192,10 @@ function loadStudents() {
         })
         .catch(err => {
             alert("❌ فشل تحميل قائمة التلاميذ");
-            console.error(err);
+            console.error("LOAD STUDENTS ERROR:", err);
         });
 }
+
 
 /* =======================
    ملء الجدول
@@ -303,3 +309,4 @@ function sendContactMessage() {
     window.open(gmailLink, "_blank");
     setTimeout(closeContactModal, 500);
 }
+
