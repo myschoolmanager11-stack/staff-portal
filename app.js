@@ -262,13 +262,12 @@ function reloadStudents() {
 function sendSelectedStudents() {
     const teacher = document.getElementById("teacherName").value.trim();
     const subject = document.getElementById("subjectName").value.trim();
-          // الحصول على الساعة الحالية بأربعة أرقام
+    const classe = document.getElementById("classeFilter").value || ""; // القسم المختار
     const now = new Date();
-    const hour = now.getHours().toString().padStart(2, "0") + ":" +
-                 now.getMinutes().toString().padStart(2, "0");الساعة فقط
+    const hour = now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0"); // ساعة:دقيقة
 
     // مفتاح لتسجيل آخر إرسال لكل أستاذ/مادة
-    const key = `lastSent_${teacher}_${subject}`;
+    const key = `lastSent_${teacher}_${subject}_${classe}`;
     const lastHour = localStorage.getItem(key);
 
     if (lastHour === hour) {
@@ -279,16 +278,19 @@ function sendSelectedStudents() {
 
     const checked = document.querySelectorAll("#absentTable tbody input[type=checkbox]:checked");
     const selected = Array.from(checked).map(cb => visibleStudents[parseInt(cb.dataset.id)]);
+
     if (selected.length === 0) {
         alert("لم يتم تحديد أي تلميذ");
         return;
     }
 
-    // تجهيز النص للإرسال
-    let textList = "\n========================================\n"; // سطر فارغ قبل الفاصل
+    // سطر فارغ قبل الفاصل لتحسين الشكل
+    let textList = "\n========================================\n";
+
+    // معلومات الأستاذ + المادة + الساعة + القسم
     textList += `الأستاذ: ${teacher}  مادة ${subject}  ${hour}` + (classe ? "  / " + classe : "") + "\n\n";
 
-    // إضافة التلاميذ بدون الساعة
+    // قائمة التلاميذ بدون القسم والساعة
     textList += selected.map(s => `${s.name} ; ${s.classe}`).join("\n");
 
     // إرسال البيانات
@@ -311,7 +313,6 @@ function sendSelectedStudents() {
             console.error(err);
         });
 }
-
 
 /* =======================
    اتصل بنا
@@ -365,6 +366,7 @@ function handleAbsentClick() {
 
     loadStudents();
 }
+
 
 
 
