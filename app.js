@@ -159,7 +159,7 @@ function closeAbsentModal() {
 }
 
 /* =======================
-   تحميل التلاميذ
+   تحميل التلاميذ من TXT
 ======================= */
 function loadStudents() {
     fetch(studentsWebAppUrl + "?action=students")
@@ -169,7 +169,15 @@ function loadStudents() {
                 throw data.message;
             }
 
-            allStudents = data.students || [];
+            // تحويل النصوص "أحمد محمد;1A" إلى كائنات
+            allStudents = (data.students || []).map(item => {
+                const parts = item.split(";");
+                return {
+                    name: parts[0] ? parts[0].trim() : "",
+                    classe: parts[1] ? parts[1].trim() : ""
+                };
+            });
+
             visibleStudents = [...allStudents];
             fillAbsentTable(visibleStudents);
         })
@@ -292,6 +300,7 @@ function sendContactMessage() {
 
     setTimeout(closeContactModal, 500);
 }
+
 
 
 
