@@ -263,9 +263,9 @@ function sendSelectedStudents() {
     const teacher = document.getElementById("teacherName").value.trim();
     const subject = document.getElementById("subjectName").value.trim();
     const now = new Date();
-    const hour = now.getHours().toString().padStart(2,"0");
+    const hour = now.getHours().toString().padStart(2,"0"); // الساعة فقط
 
-    // مفتاح لتسجيل آخر إرسال
+    // مفتاح لتسجيل آخر إرسال لكل أستاذ/مادة
     const key = `lastSent_${teacher}_${subject}`;
     const lastHour = localStorage.getItem(key);
 
@@ -282,11 +282,10 @@ function sendSelectedStudents() {
         return;
     }
 
-    // إعداد النص
-    let textList = "=========================================\n";
-    textList += `الأستاذ: ${teacher}  مادة ${subject}\n`;
-   let textList = "\n";
-    textList += selected.map(s => `${s.name} ; ${s.classe} ; ${hour}`).join("\n");
+    // تجهيز النص
+    let textList = "============================\n";
+    textList += `الأستاذ: ${teacher}  مادة ${subject}  ${hour}\n\n`; // سطر فارغ بعد اسم الأستاذ
+    textList += selected.map(s => `${s.name} ; ${s.classe}`).join("\n");
 
     // إرسال البيانات
     fetch(appendWebAppUrl + "?action=addAbsent&list=" + encodeURIComponent(textList))
@@ -362,6 +361,7 @@ function handleAbsentClick() {
 
     loadStudents();
 }
+
 
 
 
