@@ -173,12 +173,26 @@ function loadStudents() {
 
             allStudents = data.students || []; // الآن بيانات جاهزة {name, classe}
             visibleStudents = [...allStudents];
+            fillClasseFilter(allStudents);
             fillAbsentTable(visibleStudents);
+           
         })
         .catch(err => {
             alert("❌ فشل تحميل قائمة التلاميذ");
             console.error("LOAD STUDENTS ERROR:", err);
         });
+}
+
+/* تعبئة الأقسام */
+function fillClasseFilter(students) {
+    const sel = document.getElementById("classeFilter");
+    sel.innerHTML = `<option value="">📚 كل الأقسام</option>`;
+    [...new Set(students.map(s => s.classe))].forEach(c => {
+        const o = document.createElement("option");
+        o.value = c;
+        o.textContent = c;
+        sel.appendChild(o);
+    });
 }
 
 /* =======================
@@ -210,6 +224,19 @@ document.getElementById("absentSearch").addEventListener("input", function () {
     );
     fillAbsentTable(visibleStudents);
 });
+
+/* فلترة القسم */
+document.getElementById("classeFilter").addEventListener("change", function () {
+    visibleStudents = this.value
+        ? allStudents.filter(s => s.classe === this.value)
+        : [...allStudents];
+    fillAbsentTable(visibleStudents);
+});
+
+/* تحديث */
+function reloadStudents() {
+    loadStudents();
+}
 
 /* =======================
    إرسال الغائبين
@@ -283,3 +310,4 @@ function sendContactMessage() {
     window.open(gmailLink, "_blank");
     setTimeout(closeContactModal, 500);
 }
+
