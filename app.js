@@ -166,7 +166,7 @@ function closeAbsentModal() {
    تحميل التلاميذ من TXT
 ======================= */
 function loadStudents() {
-    fetch(studentsWebAppUrl)
+    fetch(studentsWebAppUrl + "?action=getStudents")
         .then(res => {
             if (!res.ok) {
                 throw new Error("HTTP Error " + res.status);
@@ -316,6 +316,7 @@ function sendContactMessage() {
     window.open(gmailLink, "_blank");
     setTimeout(closeContactModal, 500);
 }
+
 
 
 
