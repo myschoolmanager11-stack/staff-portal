@@ -271,14 +271,26 @@ function sendSelectedStudents() {
         return;
     }
 
+    // قراءة اسم الأستاذ والمادة من الحقول
+    const teacher = document.getElementById("teacherName").value.trim();
+    const subject = document.getElementById("subjectName").value.trim();
+
+    if (!teacher || !subject) {
+        alert("يرجى إدخال اسم الأستاذ والمادة قبل الإرسال");
+        return;
+    }
+
+    // حفظ القيم في localStorage
+    localStorage.setItem("teacherName", teacher);
+    localStorage.setItem("subjectName", subject);
+
     const now = new Date();
     const hour =
-        now.getHours().toString().padStart(2, "0") +
-        ":" +
-        now.getMinutes().toString().padStart(2, "0");
+        now.getHours().toString().padStart(2, "0"); // فقط الساعة بدون دقائق
 
-    // تجهيز القائمة للارسال بشكل ذكي
-    const textList = selected.map(s =>
+    // تجهيز القائمة للارسال بشكل ذكي مع إضافة اسم الأستاذ والمادة في الأعلى
+    const header = `الأستاذ: ${teacher}  مادة ${subject}`;
+    const textList = header + "\n" + selected.map(s =>
         `${s.name} ; ${s.classe} ; ${hour}`
     ).join("\n");
 
@@ -339,6 +351,18 @@ function sendContactMessage() {
     setTimeout(closeContactModal, 500);
 }
 
+function handleAbsentClick() {
+    document.getElementById("absentModal").style.display = "flex";
+
+    // استعادة القيم من localStorage
+    const savedTeacher = localStorage.getItem("teacherName") || "";
+    const savedSubject = localStorage.getItem("subjectName") || "";
+
+    document.getElementById("teacherName").value = savedTeacher;
+    document.getElementById("subjectName").value = savedSubject;
+
+    loadStudents();
+}
 
 
 
