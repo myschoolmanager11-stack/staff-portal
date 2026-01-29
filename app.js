@@ -260,46 +260,43 @@ function reloadStudents() {
    إرسال الغائبين
 ======================= */
 function sendSelectedStudents() {
-    const checked = document.querySelectorAll(
-        "#absentTable tbody input[type=checkbox]:checked"
-    );
+    const teacher = document.getElementById("teacherName").value.trim();
+    const subject = document.getElementById("subjectName").value.trim();
+    const now = new Date();
+    const hour = now.getHours().toString().padStart(2,"0");
 
+    // مفتاح لتسجيل آخر إرسال
+    const key = `lastSent_${teacher}_${subject}`;
+    const lastHour = localStorage.getItem(key);
+
+    if (lastHour === hour) {
+        if (!confirm("⚠️ لقد تم إرسال قائمة هذا الأستاذ والمادة في هذه الساعة بالفعل. هل تريد الإرسال مرة أخرى؟")) {
+            return;
+        }
+    }
+
+    const checked = document.querySelectorAll("#absentTable tbody input[type=checkbox]:checked");
     const selected = Array.from(checked).map(cb => visibleStudents[parseInt(cb.dataset.id)]);
-
     if (selected.length === 0) {
         alert("لم يتم تحديد أي تلميذ");
         return;
     }
 
-    // قراءة اسم الأستاذ والمادة من الحقول
-    const teacher = document.getElementById("teacherName").value.trim();
-    const subject = document.getElementById("subjectName").value.trim();
+    // إعداد النص
+    let textList = "=========================================================\n";
+    textList += `الأستاذ: ${teacher}  مادة ${subject}\n`;
+    textList += selected.map(s => `${s.name} ; ${s.classe} ; ${hour}`).join("\n");
 
-    if (!teacher || !subject) {
-        alert("يرجى إدخال اسم الأستاذ والمادة قبل الإرسال");
-        return;
-    }
-
-    // حفظ القيم في localStorage
-    localStorage.setItem("teacherName", teacher);
-    localStorage.setItem("subjectName", subject);
-
-    const now = new Date();
-    const hour =
-        now.getHours().toString().padStart(2, "0"); // فقط الساعة بدون دقائق
-
-    // تجهيز القائمة للارسال بشكل ذكي مع إضافة اسم الأستاذ والمادة في الأعلى
-    const header = `الأستاذ: ${teacher}  مادة ${subject}`;
-    const textList = header + "\n" + selected.map(s =>
-        `${s.name} ; ${s.classe} ; ${hour}`
-    ).join("\n");
-
-    // إرسال البيانات إلى Google Apps Script
+    // إرسال البيانات
     fetch(appendWebAppUrl + "?action=addAbsent&list=" + encodeURIComponent(textList))
         .then(res => res.json())
         .then(data => {
             if (data.status === "success") {
                 alert("✅ تم إرسال القائمة بنجاح");
+                localStorage.setItem(key, hour); // تسجيل آخر إرسال
+                // حفظ القيم لتعبئة المرة القادمة
+                localStorage.setItem("teacherName", teacher);
+                localStorage.setItem("subjectName", subject);
             } else {
                 alert("❌ خطأ أثناء الإرسال: " + (data.message || ""));
             }
@@ -310,6 +307,7 @@ function sendSelectedStudents() {
             console.error(err);
         });
 }
+
 
 /* =======================
    اتصل بنا
@@ -363,6 +361,7 @@ function handleAbsentClick() {
 
     loadStudents();
 }
+
 
 
 
