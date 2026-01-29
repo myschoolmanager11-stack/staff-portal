@@ -1,3 +1,23 @@
+/* ===== توحيد الخط في كامل التطبيق ===== */
+body,
+button,
+input,
+select,
+textarea,
+.dropdown-menu,
+.modal-content,
+table,
+th,
+td {
+    font-family: Tahoma, Arial, sans-serif;
+    font-size: 8.5pt;
+}
+
+h2, h3 {
+    font-size: 10pt;
+    font-weight: bold;
+}
+
 body {
     margin: 0;
     background: #f2f4ff;
@@ -236,6 +256,7 @@ body {
     50%  { opacity: 1; }
     100% { opacity: 0.3; }
 }
+
 
 
 
