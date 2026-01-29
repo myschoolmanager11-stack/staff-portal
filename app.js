@@ -18,10 +18,9 @@ let qrScanner = null;
    روابط Google Apps Script
 ======================= */
 const studentsWebAppUrl =
-    "https://script.google.com/macros/s/AKfycbzPfR162O1e2RD_5YRJTySOUHnR1PYhrhs3EpwmkQq4fQM8CBlwOUMO4o24d1GHQTQdNQ/exec";
+    "https://script.google.com/macros/s/AKfycbx5d5cS3Kr-sQZS-iMd8LtArz-Q2nbkZxqZn-Bl6xpMf_RZSNsI2RHKoaHPQk5KEYW_5w/exec";
 
-const appendWebAppUrl =
-    "https://script.google.com/macros/s/AKfycbzPfR162O1e2RD_5YRJTySOUHnR1PYhrhs3EpwmkQq4fQM8CBlwOUMO4o24d1GHQTQdNQ/exec";
+const appendWebAppUrl = studentsWebAppUrl;
 
 let allStudents = [];      // كل التلاميذ
 let visibleStudents = [];  // التلاميذ المعروضون بعد البحث
@@ -140,7 +139,6 @@ function stopQR() {
     }
 }
 
-
 /* ===== مسح الكل ===== */
 function clearAllLinks() {
     document.getElementById("dropdownMenu").style.display = "none";
@@ -163,37 +161,17 @@ function closeAbsentModal() {
 }
 
 /* =======================
-   تحميل التلاميذ من TXT
+   تحميل التلاميذ من Apps Script
 ======================= */
 function loadStudents() {
     fetch(studentsWebAppUrl + "?action=getStudents")
-        .then(res => {
-            if (!res.ok) {
-                throw new Error("HTTP Error " + res.status);
-            }
-            return res.text(); // ✅ نقرأ كنص
-        })
-        .then(text => {
-
-            // تقسيم الملف إلى أسطر
-            const lines = text
-                .split("\n")
-                .map(l => l.trim())
-                .filter(l => l !== "");
-
-            if (lines.length === 0) {
-                throw new Error("ملف التلاميذ فارغ");
+        .then(res => res.json())
+        .then(data => {
+            if (data.status !== "success") {
+                throw new Error(data.message || "خطأ غير معروف");
             }
 
-            allStudents = lines.map(line => {
-                const parts = line.split(";");
-
-                return {
-                    name: parts[0] ? parts[0].trim() : "",
-                    classe: parts[1] ? parts[1].trim() : ""
-                };
-            });
-
+            allStudents = data.students || []; // الآن بيانات جاهزة {name, classe}
             visibleStudents = [...allStudents];
             fillAbsentTable(visibleStudents);
         })
@@ -203,9 +181,8 @@ function loadStudents() {
         });
 }
 
-
 /* =======================
-   ملء الجدول
+   ملء جدول الغياب
 ======================= */
 function fillAbsentTable(students) {
     const tbody = document.querySelector("#absentTable tbody");
@@ -223,7 +200,7 @@ function fillAbsentTable(students) {
 }
 
 /* =======================
-   البحث
+   البحث في قائمة التلاميذ
 ======================= */
 document.getElementById("absentSearch").addEventListener("input", function () {
     const q = this.value.toLowerCase();
@@ -242,26 +219,16 @@ function sendSelectedStudents() {
         "#absentTable tbody input[type=checkbox]:checked"
     );
 
-    const selected = Array.from(checked).map(cb => {
-        return visibleStudents[parseInt(cb.dataset.id)];
-    });
+    const selected = Array.from(checked).map(cb => visibleStudents[parseInt(cb.dataset.id)]);
 
     if (selected.length === 0) {
         alert("لم يتم تحديد أي تلميذ");
         return;
     }
 
-    // تحويل القائمة إلى نص TXT "الاسم | القسم"
-    const textList = selected
-        .map(s => `${s.name} | ${s.classe}`)
-        .join("\n");
+    const textList = selected.map(s => `${s.name} | ${s.classe}`).join("\n");
 
-    const url =
-        appendWebAppUrl +
-        "?action=addAbsent&list=" +
-        encodeURIComponent(textList);
-
-    fetch(url)
+    fetch(appendWebAppUrl + "?action=addAbsent&list=" + encodeURIComponent(textList))
         .then(res => res.json())
         .then(data => {
             if (data.status === "success") {
@@ -316,7 +283,3 @@ function sendContactMessage() {
     window.open(gmailLink, "_blank");
     setTimeout(closeContactModal, 500);
 }
-
-
-
-
