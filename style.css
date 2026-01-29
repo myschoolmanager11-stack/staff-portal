@@ -138,6 +138,27 @@ body {
     max-width: 420px;
 }
 
+/* ===== Footer ===== */
+.app-footer {
+    background: #3f51b5;
+    color: white;
+    padding: 8px;
+    overflow: hidden;
+    margin-top: 30px;
+}
+
+.footer-marquee {
+    white-space: nowrap;
+    font-size: 13px;
+    animation: move 12s linear infinite;
+}
+
+@keyframes move {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+}
+
+
 /* عنصر اتصل بنا */
 .modal-content h3 {
     margin-top: 0;
@@ -218,23 +239,4 @@ body {
 }
 
 
-/* ===== Footer ===== */
-.app-footer {
-    background: #3f51b5;
-    color: white;
-    padding: 8px;
-    overflow: hidden;
-    margin-top: 30px;
-}
-
-.footer-marquee {
-    white-space: nowrap;
-    font-size: 13px;
-    animation: move 12s linear infinite;
-}
-
-@keyframes move {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(100%); }
-}
 
