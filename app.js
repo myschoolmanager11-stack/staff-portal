@@ -163,9 +163,13 @@ function closeAbsentModal() {
    تحميل التلاميذ
 ======================= */
 function loadStudents() {
-    fetch(studentsWebAppUrl)
+    fetch(studentsWebAppUrl + "?action=students")
         .then(res => res.json())
         .then(data => {
+            if (data.status !== "success") {
+                throw data.message;
+            }
+
             allStudents = data.students || [];
             visibleStudents = [...allStudents];
             fillAbsentTable(visibleStudents);
@@ -223,24 +227,31 @@ function sendSelectedStudents() {
         return;
     }
 
-    fetch(appendWebAppUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ students: selected })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "success") {
-            alert("✅ تم إرسال القائمة بنجاح");
-        } else {
-            alert("❌ خطأ أثناء الإرسال");
-        }
-        closeAbsentModal();
-    })
-    .catch(err => {
-        alert("❌ فشل الاتصال بالسيرفر");
-        console.error(err);
-    });
+    // تحويل القائمة إلى نص TXT
+    const textList = selected
+        .map(s => `${s.name} | ${s.classe}`)
+        .join("\n");
+
+    const url =
+        appendWebAppUrl +
+        "?action=addAbsent&list=" +
+        encodeURIComponent(textList);
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                alert("✅ تم إرسال القائمة بنجاح");
+            } else {
+                alert("❌ خطأ أثناء الإرسال");
+            }
+            closeAbsentModal();
+        })
+        .catch(err => {
+            alert("❌ فشل الاتصال بالسيرفر");
+            console.error(err);
+        });
 }
+
 
 
