@@ -9,7 +9,6 @@ const viewerToolbar = document.getElementById("viewerToolbar");
 const selectedTitle = document.getElementById("selectedTitle");
 const subTitle = document.getElementById("subTitle");
 const messageBox = document.getElementById("message");
-
 const PORTAL_NAME = "بوابة الأساتذة والموظفين";
 
 let currentKey = "";
@@ -251,6 +250,47 @@ function sendSelectedStudents() {
             alert("❌ فشل الاتصال بالسيرفر");
             console.error(err);
         });
+}
+
+/* ===== اتصل بنا ===== */
+function openContactModal() {
+    document.getElementById("contactModal").style.display = "flex";
+
+    contactEmail.value = "";
+    contactPhone.value = "";
+    contactMessage.value = "";
+}
+
+function closeContactModal() {
+    document.getElementById("contactModal").style.display = "none";
+}
+
+function sendContactMessage() {
+    const email = contactEmail.value.trim();
+    const phone = contactPhone.value.trim();
+    const message = contactMessage.value.trim();
+
+    if (!email || !message) {
+        alert("يرجى إدخال البريد الإلكتروني ومضمون الرسالة");
+        return;
+    }
+
+    const subject = `رسالة من ${PORTAL_NAME}`;
+
+    const body =
+        `البريد الإلكتروني: ${email}\n` +
+        `رقم الهاتف: ${phone || "غير مدخل"}\n\n` +
+        `مضمون الرسالة:\n${message}`;
+
+    const gmailLink =
+        "https://mail.google.com/mail/?view=cm&fs=1" +
+        "&to=myschoolmanager11@gmail.com" +
+        "&su=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
+
+    window.open(gmailLink, "_blank");
+
+    setTimeout(closeContactModal, 500);
 }
 
 
