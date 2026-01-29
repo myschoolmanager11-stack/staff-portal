@@ -21,11 +21,11 @@ let qrScanner = null;
 
 // Web App لجلب قائمة التلاميذ (JSON)
 const studentsWebAppUrl =
-    "https://script.google.com/macros/s/AKfycbw33okZKweZUgD3grrJKsimz9hdZaIHSt0gimZ061REl2E_UWvTCsAT95rKPa2Ffn_c8A/exec";
+    "https://script.google.com/macros/s/AKfycbzPfR162O1e2RD_5YRJTySOUHnR1PYhrhs3EpwmkQq4fQM8CBlwOUMO4o24d1GHQTQdNQ/exec";
 
 // Web App للإضافة إلى Absented.CSV
 const appendWebAppUrl =
-    "https://script.google.com/macros/s/AKfycbw1V4DKL8TPE0jKoO7Fm-Q_BdDmc3B5-3qulrOrqJlTAX-wazSIOZelEL_FOWcj3tWj0A/exec";
+    "https://script.google.com/macros/s/AKfycbzPfR162O1e2RD_5YRJTySOUHnR1PYhrhs3EpwmkQq4fQM8CBlwOUMO4o24d1GHQTQdNQ/exec";
 
 let allStudents = [];      // كل التلاميذ
 let visibleStudents = []; // التلاميذ المعروضون بعد البحث
@@ -242,4 +242,5 @@ function sendSelectedStudents() {
         console.error(err);
     });
 }
+
 
