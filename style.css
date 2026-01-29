@@ -1,4 +1,18 @@
 body {
+    /* ===== توحيد الخط في كامل التطبيق ===== */
+body,
+button,
+input,
+select,
+textarea,
+.dropdown-menu,
+.modal-content,
+table,
+th,
+td {
+    font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+    font-size: 8.5pt;
+}
     margin: 0;
     font-family: "Segoe UI", Tahoma, Arial, sans-serif;
     background: #f2f4ff;
@@ -237,6 +251,7 @@ body {
     50%  { opacity: 1; }
     100% { opacity: 0.3; }
 }
+
 
 
 
