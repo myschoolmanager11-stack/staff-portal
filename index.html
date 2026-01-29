@@ -113,10 +113,12 @@
             <input type="text" id="subjectName" placeholder="المادة" style="flex:1;">
         </div>
 
-        <!-- فلتر البحث والقسم -->
-        <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+          <!-- فلتر البحث والقسم -->
+        <div style="display: flex; gap: 6px; margin-bottom: 6px; align-items:center;">
             <input id="absentSearch" type="text" placeholder="بحث..." style="flex:1;">
-            <select id="classeFilter"></select>
+            <select id="classeFilter" style="height:30px; font-size: 0.85rem;">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </select>
         </div>
 
         <!-- جدول الغياب مع تمرير -->
@@ -134,21 +136,27 @@
         </div>
 
         <!-- أزرار التحكم -->
-        <div style="display: flex; justify-content: flex-end; gap: 10px;">
-            <button onclick="reloadStudents()">تحديث</button>
-            <button onclick="sendSelectedStudents()">إرسال</button>
-            <button onclick="closeAbsentModal()">إغلاق</button>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top:5px;">
+            <button onclick="reloadStudents()" style="display:flex; align-items:center; gap:4px; padding:6px 12px;">
+                🔄 تحديث
+            </button>
+            <button onclick="sendSelectedStudents()" style="display:flex; align-items:center; gap:4px; padding:6px 12px;">
+                📤 إرسال
+            </button>
+            <button onclick="closeAbsentModal()" style="display:flex; align-items:center; gap:4px; padding:6px 12px;">
+                ❌ إغلاق
+            </button>
         </div>
 
         <!-- نص التحميل -->
-        <div id="loadingText" style="text-align:center; display:none;">جارٍ التحميل...</div>
+        <div id="loadingText" style="text-align:center; display:none;">يرجى الإنتضار جارٍ التحميل...</div>
     </div>
 </div>
 
     
 <footer class="app-footer">
     <div class="footer-marquee">
-        Myschoolmanager – AAbdousoft@gmail.com | 2010 - 2026 ©
+        Myschoolmanager | 2010 - 2026 ©  – برمجة وتصميم لطرش عبدالقادر aabdousoft@gmail.com  | Algeria, medea 26000
     </div>
 </footer>
 
