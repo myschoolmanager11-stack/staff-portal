@@ -160,10 +160,20 @@ function closeAbsentModal() {
     document.getElementById("absentModal").style.display = "none";
 }
 
+function showLoading() {
+    document.getElementById("loadingText").style.display = "block";
+}
+
+function hideLoading() {
+    document.getElementById("loadingText").style.display = "none";
+}
+
 /* =======================
    تحميل التلاميذ من Apps Script
 ======================= */
 function loadStudents() {
+    showLoading();
+   
     fetch(studentsWebAppUrl + "?action=getStudents")
         .then(res => res.json())
         .then(data => {
@@ -176,10 +186,13 @@ function loadStudents() {
             fillClasseFilter(allStudents);
             fillAbsentTable(visibleStudents);
            
-        })
-        .catch(err => {
+       })
+        catch(err => {
             alert("❌ فشل تحميل قائمة التلاميذ");
             console.error("LOAD STUDENTS ERROR:", err);
+        })
+        .finally(() => {
+            hideLoading();
         });
 }
 
@@ -227,10 +240,17 @@ document.getElementById("absentSearch").addEventListener("input", function () {
 
 /* فلترة القسم */
 document.getElementById("classeFilter").addEventListener("change", function () {
-    visibleStudents = this.value
-        ? allStudents.filter(s => s.classe === this.value)
-        : [...allStudents];
-    fillAbsentTable(visibleStudents);
+    if (this.value === "") {
+        showLoading();
+        setTimeout(() => {
+            visibleStudents = [...allStudents];
+            fillAbsentTable(visibleStudents);
+            hideLoading();
+        }, 300);
+    } else {
+        visibleStudents = allStudents.filter(s => s.classe === this.value);
+        fillAbsentTable(visibleStudents);
+    }
 });
 
 /* تحديث */
@@ -310,4 +330,5 @@ function sendContactMessage() {
     window.open(gmailLink, "_blank");
     setTimeout(closeContactModal, 500);
 }
+
 
