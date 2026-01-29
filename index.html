@@ -103,34 +103,24 @@
 </div>
 
 <!-- نافذة الغياب -->
-<div class="modal" id="absentModal">
-    <div class="modal-content large-modal">
-        <h3>📋 تحديد التلاميذ الغائبين</h3>
-        
+<div id="absentModal" class="modal">
+    <div class="modal-content">
+        <h3>قائمة الغياب</h3>
+
         <!-- حقول الأستاذ والمادة -->
-        <div style="margin-bottom: 12px;">
-            <label>اسم الأستاذ:</label>
-            <input type="text" id="teacherName" placeholder="أدخل اسم الأستاذ">
-        </div>
-        <div style="margin-bottom: 12px;">
-            <label>المادة:</label>
-            <input type="text" id="subjectName" placeholder="أدخل اسم المادة">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <input type="text" id="teacherName" placeholder="اسم الأستاذ" style="flex:1;">
+            <input type="text" id="subjectName" placeholder="المادة" style="flex:1;">
         </div>
 
-        <div class="absent-filters">
-            <select id="classeFilter">
-                <option value="">📚 كل الأقسام</option>
-            </select>
-            <button class="refresh-btn" onclick="reloadStudents()">🔄</button>
+        <!-- فلتر البحث والقسم -->
+        <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+            <input id="absentSearch" type="text" placeholder="بحث..." style="flex:1;">
+            <select id="classeFilter"></select>
         </div>
 
-        <input type="text" id="absentSearch" placeholder="🔍 البحث بالاسم">
-        
-         <div id="loadingText" class="loading-text">
-          ⏳ يرجى الانتظار، جاري تحميل قائمة التلاميذ...
-        </div>
-        
-        <div class="table-container">
+        <!-- جدول الغياب مع تمرير -->
+        <div class="table-container" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
             <table id="absentTable">
                 <thead>
                     <tr>
@@ -143,12 +133,18 @@
             </table>
         </div>
 
-        <div class="modal-buttons">
-            <button class="save" onclick="sendSelectedStudents()">📤 إرسال</button>
-            <button class="close" onclick="closeAbsentModal()">✖</button>
+        <!-- أزرار التحكم -->
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button onclick="reloadStudents()">تحديث</button>
+            <button onclick="sendSelectedStudents()">إرسال</button>
+            <button onclick="closeAbsentModal()">إغلاق</button>
         </div>
+
+        <!-- نص التحميل -->
+        <div id="loadingText" style="text-align:center; display:none;">جارٍ التحميل...</div>
     </div>
 </div>
+
     
 <footer class="app-footer">
     <div class="footer-marquee">
