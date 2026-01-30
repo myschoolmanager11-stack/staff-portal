@@ -22,6 +22,10 @@ body {
     margin: 0;
     background: #f2f4ff;
     direction: rtl;
+
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* مهم جدًا */
 }
 
 /* ===== الشريط العلوي ===== */
@@ -163,18 +167,19 @@ body {
     color: white;
     padding: 8px;
     overflow: hidden;
-    margin-top: 30px;
+
+    margin-top: auto; /* السحر هنا */
 }
 
 .footer-marquee {
     white-space: nowrap;
     font-size: 13px;
-    animation: move 12s linear infinite;
+    animation: move 25s linear infinite; /* كانت 12s */
 }
 
 @keyframes move {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(100%); }
+    from { transform: translateX(100%); }
+    to   { transform: translateX(-100%); }
 }
 
 
@@ -257,6 +262,14 @@ body {
     100% { opacity: 0.3; }
 }
 
+.container {
+    flex: 1; /* يدفع الفوتر للأسفل */
+    max-width: 900px;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
 
 
 
