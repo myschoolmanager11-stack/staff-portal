@@ -57,43 +57,52 @@ userTypeSelect.onchange = () => {
 /* تحميل الموظفين حسب المؤسسة */
 function loadEmployees() {
 
-    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files.employes) {
-        alert("❌ ملف الموظفين غير موجود لهذه المؤسسة");
+    // تحقق من وجود المؤسسة وملف الموظفين
+    if (!CURRENT_INSTITUTION) {
+        alert("❌ لم يتم اختيار أي مؤسسة");
         return;
     }
 
-    // المحتوى موجود مباشرة هنا
-    const text = CURRENT_INSTITUTION.files.employes.content;
+    const employesFile = CURRENT_INSTITUTION.files?.employes;
+
+    if (!employesFile || !employesFile.content) {
+        alert(`⚠️ ملف الموظفين غير موجود أو فارغ في مؤسسة "${CURRENT_INSTITUTION.name}"`);
+        loginTableBody.innerHTML = "";
+        selectedUser = null;
+        return;
+    }
+
+    // استخدم المحتوى مباشرة
+    const text = employesFile.content;
 
     loginTableBody.innerHTML = "";
     selectedUser = null;
 
-    text.split("\n")
-        .map(l => l.trim())
-        .filter(l => l && l.includes(";"))
-        .forEach(line => {
+    const lines = text.split("\n").map(l => l.trim()).filter(l => l && l.includes(";"));
 
-            const parts = line.split(";");
-
-            const name = parts[0].trim();
-            const pass = parts[1].trim();
-
-            const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${name}</td><td>—</td>`; // عمود كلمة المرور مخفي
-
-            tr.onclick = () => {
-                selectedUser = { name, pass };
-                [...loginTableBody.children].forEach(r => r.classList.remove("selected"));
-                tr.classList.add("selected");
-            };
-
-            loginTableBody.appendChild(tr);
-        });
-
-    if (loginTableBody.children.length === 0) {
-        alert(`⚠️ لا توجد بيانات موظفين صالحة في ملف "${CURRENT_INSTITUTION.files.employes.name}"`);
+    if (lines.length === 0) {
+        alert(`⚠️ لا توجد بيانات موظفين صالحة في ملف "${employesFile.name}"`);
+        return;
     }
+
+    lines.forEach(line => {
+        const parts = line.split(";");
+        const name = parts[0].trim();
+        const pass = parts[1].trim();
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${name}</td><td>—</td>`; // كلمة المرور مخفية
+
+        tr.onclick = () => {
+            selectedUser = { name, pass };
+            [...loginTableBody.children].forEach(r => r.classList.remove("selected"));
+            tr.classList.add("selected");
+        };
+
+        loginTableBody.appendChild(tr);
+    });
 }
+
 
 /* تسجيل الدخول */
 proceedBtn.onclick = () => {
@@ -123,4 +132,5 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
 
