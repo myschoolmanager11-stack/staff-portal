@@ -1,278 +1,181 @@
-/* ===== توحيد الخط في كامل التطبيق ===== */
-body,
-button,
-input,
-select,
-textarea,
-.dropdown-menu,
-.modal-content,
-table,
-th,
-td {
-    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-    font-size: 8.5pt;
-}
-
-h2,
-h3 {
-    font-size: 10pt;
-    font-weight: bold;
+/* =======================
+   Reset & Base
+======================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    margin: 0;
-    background: #f2f4ff;
-    direction: rtl;
+    background-color: #f4f6f8;
+    color: #333;
+    line-height: 1.4;
 }
 
-/* ===== الشريط العلوي ===== */
+/* =======================
+   Header
+======================= */
 .top-bar {
-    background: #3f51b5;
-    color: white;
-    padding: 10px 12px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #2b3e50;
+    color: #fff;
     position: relative;
 }
 
-.menu-btn {
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 22px;
+.app-title h2 {
+    font-size: 1.6rem;
+    margin-bottom: 4px;
+}
+
+.app-title .welcome-text {
+    font-size: 0.9rem;
+    color: #cfd8dc;
+}
+
+/* =======================
+   Buttons
+======================= */
+button {
     cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
 }
 
-/* ===== العنوان ===== */
-.app-title {
-    text-align: center;
-    flex: 1;
+button:hover {
+    opacity: 0.9;
 }
 
-#mainTitle {
-    font-size: 16px;
-    font-weight: 600;
+.menu-btn {
+    background-color: #ff9800;
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 1.1rem;
 }
 
-#subTitle {
-    font-size: 12px;
-    opacity: 0.85;
+.menu-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-/* ===== القائمة ===== */
+/* =======================
+   Dropdown Menu
+======================= */
 .dropdown-menu {
     position: absolute;
     top: 55px;
-    right: 10px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-    display: none;
-    z-index: 1000;
-    min-width: 220px;
+    right: 20px;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 220px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    z-index: 100;
 }
 
 .dropdown-menu div {
-    padding: 12px 14px;
+    padding: 10px 12px;
     cursor: pointer;
-    color: #3f51b5;
-    font-size: 14px;
 }
 
 .dropdown-menu div:hover {
-    background: #f0f4ff;
+    background-color: #f0f0f0;
 }
 
-/* فاصل */
+.menu-contact {
+    color: #1976d2;
+}
+
+.menu-danger {
+    color: #d32f2f;
+}
+
 .menu-separator {
     height: 1px;
-    background: #e0e0e0;
-    margin: 6px 0;
+    background-color: #ddd;
+    margin: 5px 0;
 }
 
-/* زر خطير */
-.menu-danger {
-    color: #d32f2f !important;
-    font-weight: 600;
-}
-
-.menu-danger:hover {
-    background: #fdeaea;
-}
-
-/* ===== المحتوى ===== */
+/* =======================
+   Container
+======================= */
 .container {
-    max-width: 900px;
-    margin: 20px auto;
-    background: white;
     padding: 20px;
-    border-radius: 10px;
 }
 
-/* ===== شريط أدوات المعاينة ===== */
-.viewer-toolbar {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-    margin-bottom: 8px;
-}
-
-.viewer-toolbar button {
-    background: #f0f2ff;
-    border: 1px solid #c5c9ff;
-    border-radius: 6px;
-    padding: 6px 8px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.viewer-toolbar button:hover {
-    background: #e3e6ff;
-}
-
-/* ===== العارض ===== */
-.viewer iframe {
-    width: 100%;
-    height: 600px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-}
-
-/* ===== Modal ===== */
+/* =======================
+   Modals
+======================= */
 .modal {
     position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    display: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000;
+    background: rgba(0,0,0,0.4);
+    z-index: 999;
 }
 
 .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 420px;
-}
-
-/* ===== عنصر اتصل بنا ===== */
-.modal-content h3 {
-    margin-top: 0;
-    text-align: center;
-}
-
-.modal-content input,
-.modal-content textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 14px;
-}
-
-.modal-content textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-/* ===== نافذة الغياب ===== */
-.absent-filters {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 8px;
-}
-
-#classeFilter {
-    flex: 1;
-    padding: 6px;
-}
-
-.refresh-btn {
-    padding: 6px 10px;
-    cursor: pointer;
-}
-
-.table-container {
-    max-height: 350px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
-
-#absentTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#absentTable th {
-    background: #eef0ff;
-}
-
-#absentTable th,
-#absentTable td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
-}
-
-#absentTable tr:hover {
-    background: #f6f8ff;
-}
-
-/* ===== نص التحميل ===== */
-.loading-text {
-    text-align: center;
-    font-size: 14px;
-    color: #3f51b5;
-    margin: 10px 0;
-    display: none;
-    animation: pulse 1.4s infinite;
-}
-
-@keyframes pulse {
-    0%   { opacity: 0.3; }
-    50%  { opacity: 1; }
-    100% { opacity: 0.3; }
-}
-
-/* ===== Footer ===== */
-.app-footer {
-    background: #3f51b5;
-    color: white;
-    padding: 8px;
-    overflow: hidden;
-    margin-top: 30px;
-}
-
-.footer-marquee {
-    white-space: nowrap;
-    font-size: 13px;
-    animation: move 20s linear infinite;
-}
-
-@keyframes move {
-    from { transform: translateX(-100%); }
-    to   { transform: translateX(100%); }
-}
-
-#institutionModal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-.modalBox {
-    background: #fff;
-    padding: 20px;
+    background-color: #fff;
+    padding: 20px 25px;
     border-radius: 8px;
-    min-width: 300px;
+    min-width: 320px;
+    max-width: 400px;
     text-align: center;
+}
+
+.login-content h3 {
+    margin-bottom: 20px;
+    color: #2b3e50;
+}
+
+.login-field {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.login-field label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.login-field select {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 8px 0;
+    background-color: #1976d2;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* =======================
+   Footer
+======================= */
+.app-footer {
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #555;
+    background-color: #eceff1;
+    margin-top: 20px;
 }
