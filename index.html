@@ -22,16 +22,15 @@
 </header>
 
 <div class="container">
-    <!-- مودال تسجيل الدخول -->
+
+    <!-- مودال اختيار المؤسسة + نوع المستخدم -->
     <div id="loginModal" class="modal" style="display:flex;">
         <div class="modal-content login-content">
             <h3>🔑 تسجيل الدخول</h3>
-
             <div class="login-field">
                 <label>🏫 حدد المؤسسة:</label>
                 <select id="institutionSelect"></select>
             </div>
-
             <div class="login-field">
                 <label>👤 نوع المستخدم:</label>
                 <select id="userTypeSelect">
@@ -41,31 +40,28 @@
                     <option value="parent">أولياء الأمور</option>
                 </select>
             </div>
-
             <button id="proceedBtn" class="login-btn" disabled>➡ متابعة</button>
         </div>
     </div>
 
     <!-- مودال الجدول لتسجيل الدخول -->
-    <div class="modal" id="loginTableModal">
+    <div class="modal" id="loginTableModal" style="display:none;">
         <div class="modal-content login-content">
             <h3>📝 تسجيل الدخول</h3>
-            <div class="table-container" style="max-height: 220px; overflow-y:auto;">
+            <div class="table-container" style="max-height:220px; overflow-y:auto;">
                 <table id="loginTable">
                     <thead>
                         <tr>
-                            <th>الإسم واللقب</th>
-                            <th>المادة / القسم</th>
+                            <th style="width:65%;">الإسم واللقب</th>
+                            <th style="width:35%;">المادة / القسم</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
-
             <div class="login-field">
                 <input type="password" id="loginPassword" placeholder="كلمة المرور (سنة الميلاد)">
             </div>
-
             <button id="loginConfirmBtn" class="login-btn">🔑 تسجيل الدخول</button>
         </div>
     </div>
