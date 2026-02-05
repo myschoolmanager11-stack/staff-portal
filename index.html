@@ -10,8 +10,6 @@
 <body>
 
 <header class="top-bar">
-
-    <!-- العنوان العام -->
     <div class="app-title">
         <h2 id="selectedTitle">🌐 فضاء الخدمات</h2>
         <p class="welcome-text" id="welcomeText">
@@ -19,48 +17,47 @@
         </p>
     </div>
 
-    <!-- القائمة الرئيسية (زر معطل مبدئيًا) -->
     <div class="right-buttons">
-        <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" disabled>☰ القائمة</button>
+        <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" disabled>☰</button>
     </div>
 
-    <!-- القائمة المنسدلة -->
-    <div class="dropdown-menu" id="dropdownMenu" style="display:none;">
-        <!-- سيتم ملؤها ديناميكياً حسب نوع المستخدم -->
-    </div>
-
+    <div class="dropdown-menu" id="dropdownMenu" style="display:none;"></div>
 </header>
 
 <div class="container">
 
     <!-- نافذة اختيار المؤسسة + تسجيل الدخول -->
     <div id="loginModal" class="modal" style="display:flex;">
-        <div class="modal-content">
-            <h3>اختر المؤسسة وسجل الدخول</h3>
+        <div class="modal-content login-content">
+            <h3>🔑 تسجيل الدخول</h3>
 
-            <!-- اختيار المؤسسة -->
-            <label>المؤسسة:</label>
-            <select id="institutionSelect"></select>
+            <!-- اختيار المؤسسة أولًا -->
+            <div class="login-field">
+                <label>🏫 المؤسسة:</label>
+                <select id="institutionSelect"></select>
+            </div>
 
-            <!-- تسجيل الدخول -->
-            <label>تسجيل الدخول:</label>
-            <select id="userTypeSelect">
-                <option value="">-- اختر نوع المستخدم --</option>
-                <option value="teacher">أستاذ</option>
-                <option value="parent">ولي الأمر</option>
-                <option value="consultation">إستشارة</option>
-                <option value="secretariat">أمانة</option>
-                <option value="counselor">مستشار التوجيه المدرسي</option>
-                <option value="clubs">النوادي المدرسية</option>
-            </select>
+            <!-- اختيار المستخدم -->
+            <div class="login-field">
+                <label>👤 تسجيل الدخول:</label>
+                <select id="userTypeSelect">
+                    <option value="">-- اختر نوع المستخدم --</option>
+                    <option value="teacher">أستاذ</option>
+                    <option value="parent">ولي الأمر</option>
+                    <option value="consultation">إستشارة</option>
+                    <option value="secretariat">أمانة</option>
+                    <option value="counselor">مستشار التوجيه المدرسي</option>
+                    <option value="clubs">النوادي المدرسية</option>
+                </select>
+            </div>
 
-            <button onclick="confirmLogin()">تسجيل الدخول</button>
+            <!-- زر تسجيل الدخول -->
+            <button class="login-btn" onclick="confirmLogin()">🔓 تسجيل الدخول</button>
         </div>
     </div>
 
-    <!-- مساحة العرض -->
+    <!-- مساحة المحتوى الرئيسية -->
     <div id="mainContent"></div>
-
 </div>
 
 <footer class="app-footer">
