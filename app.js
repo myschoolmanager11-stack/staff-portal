@@ -1,4 +1,3 @@
-// 🔹 عناصر DOM
 const institutionSelect = document.getElementById("institutionSelect");
 const userTypeSelect = document.getElementById("userTypeSelect");
 const proceedBtn = document.getElementById("proceedBtn");
@@ -10,56 +9,43 @@ const loginModal = document.getElementById("loginModal");
 const menuBtn = document.getElementById("menuBtn");
 const dropdownMenu = document.getElementById("dropdownMenu");
 const selectedTitle = document.getElementById("selectedTitle");
-const welcomeText = document.getElementById("welcomeText");
 
 let CURRENT_INSTITUTION = null;
 let CURRENT_USER_TYPE = null;
+let DRIVE_DATA = null;
 let loginData = [];
 let selectedUser = null;
-let DRIVE_DATA = null; // كل بيانات المؤسسات
 
-// 🔹 رابط سكريبت البوابة
+// 🔹 رابط سكريبت Drive
 const DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
 
-// ===== جلب المؤسسات من البوابة =====
-function loadInstitutions() {
-    institutionSelect.innerHTML = '<option value="">🔹 اختر المؤسسة...</option>';
+// جلب المؤسسات
+window.addEventListener("DOMContentLoaded", () => {
     fetch(DRIVE_API_URL)
-        .then(res => {
-            if (!res.ok) throw new Error("فشل تحميل البيانات من السيرفر");
-            return res.json();
-        })
+        .then(res => res.json())
         .then(data => {
-            DRIVE_DATA = data.institutions; // حفظ المؤسسات
+            DRIVE_DATA = data.institutions;
             DRIVE_DATA.forEach(inst => {
-                const option = document.createElement("option");
-                option.value = inst.folderId; // استخدام folderId كمعرف
-                option.textContent = inst.name;
-                institutionSelect.appendChild(option);
+                const opt = document.createElement("option");
+                opt.value = inst.name;
+                opt.textContent = inst.name;
+                institutionSelect.appendChild(opt);
             });
         })
-        .catch(err => {
-            console.error("خطأ في جلب المؤسسات:", err);
-            welcomeText.textContent = "❌ تعذر تحميل قائمة المؤسسات. تحقق من الاتصال بالإنترنت.";
-        });
-}
+        .catch(err => alert("❌ خطأ أثناء جلب المؤسسات: " + err));
+});
 
-// ===== تمكين زر متابعة =====
+// تفعيل زر متابعة
 function checkProceedEnable() {
     proceedBtn.disabled = !(institutionSelect.value && userTypeSelect.value);
 }
 institutionSelect.addEventListener("change", checkProceedEnable);
 userTypeSelect.addEventListener("change", checkProceedEnable);
 
-// ===== متابعة بعد اختيار المؤسسة ونوع المستخدم =====
+// متابعة
 proceedBtn.addEventListener("click", () => {
-    CURRENT_INSTITUTION = DRIVE_DATA.find(inst => inst.folderId === institutionSelect.value);
+    CURRENT_INSTITUTION = institutionSelect.value;
     CURRENT_USER_TYPE = userTypeSelect.value;
-
-    if (!CURRENT_INSTITUTION) {
-        alert("❌ لم يتم تحديد المؤسسة بشكل صحيح.");
-        return;
-    }
 
     if (["teacher", "consultation"].includes(CURRENT_USER_TYPE)) loadEmployees();
     else if (CURRENT_USER_TYPE === "parent") loadStudents();
@@ -68,28 +54,28 @@ proceedBtn.addEventListener("click", () => {
 
 // ===== تحميل الموظفين =====
 function loadEmployees() {
-    if (!CURRENT_INSTITUTION.files.employes) {
-        alert("❌ ملف الموظفين غير موجود لهذه المؤسسة.");
-        return;
-    }
-    fetch(CURRENT_INSTITUTION.files.employes)
+    const institution = DRIVE_DATA.find(inst => inst.name === CURRENT_INSTITUTION);
+    const employesFile = institution?.files.employes;
+    if (!employesFile) { alert("❌ ملف الموظفين غير موجود"); return; }
+
+    fetch(employesFile)
         .then(res => res.text())
         .then(text => {
             loginData = text.split("\n").map(line => {
                 const [name, dob, profession, subject] = line.split(";");
                 return { name, dob, profession, subject };
-            }).filter(u => ["أستاذ التعليم المتوسط", "أستاذ التعليم الثانوي"].includes(u.profession));
+            }).filter(u => ["أستاذ التعليم المتوسط", "أستاذ التعليم الثانوي", "مشرف تربوي"].includes(u.profession));
             showLoginTable(loginData, "subject");
         });
 }
 
 // ===== تحميل التلاميذ =====
 function loadStudents() {
-    if (!CURRENT_INSTITUTION.files.students) {
-        alert("❌ ملف التلاميذ غير موجود لهذه المؤسسة.");
-        return;
-    }
-    fetch(CURRENT_INSTITUTION.files.students)
+    const institution = DRIVE_DATA.find(inst => inst.name === CURRENT_INSTITUTION);
+    const studentsFile = institution?.files.students;
+    if (!studentsFile) { alert("❌ ملف التلاميذ غير موجود"); return; }
+
+    fetch(studentsFile)
         .then(res => res.text())
         .then(text => {
             loginData = text.split("\n").map(line => {
@@ -100,7 +86,7 @@ function loadStudents() {
         });
 }
 
-// ===== عرض الجدول مع أيقونات =====
+// ===== عرض الجدول =====
 function showLoginTable(data, columnField) {
     loginTableBody.innerHTML = "";
     data.forEach(d => {
@@ -110,10 +96,7 @@ function showLoginTable(data, columnField) {
         else if (CURRENT_USER_TYPE === "consultation") icon = "🛡️";
         else if (CURRENT_USER_TYPE === "parent") icon = "👨‍👩‍👧";
 
-        row.innerHTML = `
-            <td><span class="login-icon">${icon}</span>${d.name}</td>
-            <td>${d[columnField]}</td>
-        `;
+        row.innerHTML = `<td><span class="login-icon">${icon}</span>${d.name}</td><td>${d[columnField]}</td>`;
 
         row.addEventListener("click", () => {
             selectedUser = d;
@@ -126,7 +109,7 @@ function showLoginTable(data, columnField) {
     loginTableModal.style.display = "flex";
 }
 
-// ===== التحقق من كلمة المرور =====
+// التحقق من كلمة المرور
 loginConfirmBtn.addEventListener("click", () => {
     if (!selectedUser) { alert("اختر المستخدم من الجدول"); return; }
     const year = selectedUser.dob.split("-")[2];
@@ -140,11 +123,11 @@ loginConfirmBtn.addEventListener("click", () => {
     } else alert("❌ كلمة المرور غير صحيحة");
 });
 
-// ===== ملء القائمة مع أيقونات =====
+// ملء القائمة الرئيسية
 function loadDropdownMenuForUserType(type) {
     dropdownMenu.innerHTML = "";
     const items = {
-        teacher: [["📋", "القوائم الإسمية للتلاميذ"], ["📊", "قوائم صب النقاط"], ["📅", "قائمة التلاميذ الغائبين قبل اليوم"], ["📤", "إرسال أسماء التلاميذ الغائبين حاليًا"]],
+        teacher: [["📋", "القوائم الإسمية للتلاميذ"], ["📊", "قوائم صب النقاط"], ["📅", "قائمة التلاميذ الغائبين قبل اليوم"], ["📤", "إرسال أسماء الغائبين"]],
         parent: [["📋", "سجل الغيابات والمراسلات"], ["👨‍👩‍👧", "جدول استقبال الأولياء"]],
         consultation: [["📋", "القوائم الإسمية للتلاميذ"], ["📊", "قائمة الأساتذة الغائبين"]]
     }[type] || [["📧", "تواصل إداري"]];
@@ -158,8 +141,5 @@ function loadDropdownMenuForUserType(type) {
     dropdownMenu.style.display = "none";
 }
 
-// ===== تفعيل القائمة =====
+// تفعيل القائمة
 function toggleMenu() { dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block"; }
-
-// ===== تحميل المؤسسات عند فتح الصفحة =====
-window.addEventListener("DOMContentLoaded", loadInstitutions);
