@@ -196,3 +196,14 @@ button:hover {
     background-color: #eceff1;
     margin-top: 20px;
 }
+
+.footer-marquee {
+    white-space: nowrap;
+    font-size: 13px;
+    animation: move 20s linear infinite;
+}
+
+@keyframes move {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(100%); }
+}
