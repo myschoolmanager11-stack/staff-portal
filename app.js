@@ -155,3 +155,143 @@ function toggleMenu(){
 function handleItemClick(name){
     alert("تم اختيار: " + name);
 }
+
+// ===== عناصر DOM =====
+const institutionSelect = document.getElementById("institutionSelect");
+const userTypeSelect = document.getElementById("userTypeSelect");
+const proceedBtn = document.getElementById("proceedBtn");
+
+const loginTableModal = document.getElementById("loginTableModal");
+const loginTableBody = document.querySelector("#loginTable tbody");
+const loginPassword = document.getElementById("loginPassword");
+const loginConfirmBtn = document.getElementById("loginConfirmBtn");
+
+let selectedUserType = "";
+let loginData = []; // لتخزين بيانات الموظفين أو التلاميذ حسب النوع
+let selectedUser = null;
+
+// ===== تفعيل زر المتابعة عند اختيار المؤسسة والنوع =====
+institutionSelect.addEventListener("change", checkProceedEnable);
+userTypeSelect.addEventListener("change", checkProceedEnable);
+
+function checkProceedEnable() {
+    selectedUserType = userTypeSelect.value;
+    proceedBtn.disabled = !(institutionSelect.value && selectedUserType);
+}
+
+// ===== عند الضغط على زر متابعة =====
+proceedBtn.addEventListener("click", () => {
+    if (!selectedUserType) return;
+
+    // تحميل البيانات حسب النوع
+    if (selectedUserType === "teacher" || selectedUserType === "consultation") {
+        loadEmployees();
+    } else if (selectedUserType === "parent") {
+        loadStudents();
+    } else {
+        // الأمانة أو نوادي مؤقتاً
+        alert("تم تسجيل الدخول كمستخدم من الفئة: " + selectedUserType);
+        document.getElementById("dropdownMenu").disabled = false;
+        loginSelectModal.style.display = "none";
+    }
+});
+
+// ===== تحميل ملف الموظفين =====
+function loadEmployees() {
+    fetch("Employes.txt")
+        .then(res => res.text())
+        .then(text => {
+            const lines = text.split("\n");
+            loginData = lines.map(line => {
+                const [name, dob, profession, subject] = line.split(";");
+                return { name, dob, profession, subject };
+            }).filter(u => u.profession === "أستاذ التعليم المتوسط" || u.profession === "أستاذ التعليم الثانوي");
+            showLoginTable(loginData, "subject");
+        });
+}
+
+// ===== تحميل ملف التلاميذ =====
+function loadStudents() {
+    fetch("Students.txt")
+        .then(res => res.text())
+        .then(text => {
+            const lines = text.split("\n");
+            loginData = lines.map(line => {
+                const [name, dob, classe] = line.split(";");
+                return { name, dob, classe };
+            });
+            showLoginTable(loginData, "classe");
+        });
+}
+
+// ===== عرض البيانات في الجدول =====
+function showLoginTable(data, columnField) {
+    loginTableBody.innerHTML = "";
+    data.forEach((d, i) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${d.name}</td>
+            <td>${d[columnField]}</td>
+        `;
+        row.addEventListener("click", () => {
+            selectedUser = d;
+            // تمييز الصف المحدد بصريًا
+            [...loginTableBody.querySelectorAll("tr")].forEach(r => r.style.background = "");
+            row.style.background = "#cce5ff";
+        });
+        loginTableBody.appendChild(row);
+    });
+
+    loginTableModal.style.display = "flex";
+}
+
+// ===== التحقق من كلمة المرور والدخول =====
+loginConfirmBtn.addEventListener("click", () => {
+    if (!selectedUser) {
+        alert("اختر المستخدم من الجدول");
+        return;
+    }
+
+    // كلمة المرور هي السنة من تاريخ الميلاد
+    const year = selectedUser.dob.split("-")[2];
+    if (loginPassword.value === year) {
+        alert("✅ تم تسجيل الدخول بنجاح: " + selectedUser.name);
+        loginTableModal.style.display = "none";
+        loginSelectModal.style.display = "none";
+        loadDropdownMenuForUserType(selectedUserType);
+        document.getElementById("selectedTitle").textContent = "🌐 فضاء " + selectedUserType;
+    } else {
+        alert("❌ كلمة المرور غير صحيحة");
+    }
+});
+
+// ===== ملء القائمة حسب نوع المستخدم =====
+function loadDropdownMenuForUserType(type) {
+    const menu = document.getElementById("dropdownMenu");
+    menu.innerHTML = ""; // مسح العناصر السابقة
+
+    if (type === "teacher") {
+        menu.innerHTML = `
+            <div onclick="handleItemClick('القوائم الإسمية للتلاميذ')">📋 القوائم الإسمية للتلاميذ</div>
+            <div onclick="handleItemClick('قوائم صب النقاط للأستاذ')">📊 قوائم صب النقاط</div>
+            <div onclick="handleItemClick('قائمة التلاميذ الغائبين قبل اليوم')">📅 قائمة التلاميذ الغائبين قبل اليوم</div>
+            <div onclick="handleAbsentClick()">📤 إرسال أسماء التلاميذ الغائبين حاليًا</div>
+        `;
+    } else if (type === "parent") {
+        menu.innerHTML = `
+            <div onclick="handleItemClick('سجل الغيابات والمراسلات')">📋 سجل الغيابات والمراسلات</div>
+            <div onclick="handleItemClick('جدول استقبال الأولياء')">👨‍👩‍👧 جدول استقبال الأولياء</div>
+        `;
+    } else if (type === "consultation") {
+        menu.innerHTML = `
+            <div onclick="handleItemClick('القوائم الإسمية للتلاميذ')">📋 القوائم الإسمية للتلاميذ</div>
+            <div onclick="handleItemClick('قائمة الأساتذة الغائبين')">📊 قائمة الأساتذة الغائبين</div>
+        `;
+    } else {
+        menu.innerHTML = `<div class="menu-contact">📧 تواصل إداري</div>`;
+    }
+
+    // تفعيل القائمة بعد تسجيل الدخول
+    menu.style.display = "none";
+    document.querySelector(".menu-btn").disabled = false;
+}
