@@ -13,6 +13,64 @@ const PORTAL_NAME = "بوابة الأساتذة والموظفين";
 
 let currentKey = "";
 let qrScanner = null;
+let CURRENT_INSTITUTION = null;
+let DRIVE_DATA = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadDriveData();
+});
+
+const DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbwlI69FhYSooJ10Le-2L8oij9iixNge8_YsboJGqkMHIBve2UvP3we6EPFFx1Pol5qmWw/exec";
+
+function loadDriveData() {
+    fetch(DRIVE_API_URL)
+        .then(res => res.json())
+        .then(data => {
+            DRIVE_DATA = data;
+            fillInstitutions(data.institutions);
+            document.getElementById("institutionModal").style.display = "flex";
+        })
+        .catch(() => {
+            alert("فشل الاتصال بـ Google Drive");
+        });
+}
+
+function fillInstitutions(list) {
+    const select = document.getElementById("institutionSelect");
+    select.innerHTML = "";
+
+    list.forEach(inst => {
+        const opt = document.createElement("option");
+        opt.value = inst.folderId;
+        opt.textContent = inst.name;
+        select.appendChild(opt);
+    });
+}
+
+function confirmInstitution() {
+    const select = document.getElementById("institutionSelect");
+
+    const folderId = select.value;
+    const name = select.options[select.selectedIndex].text;
+
+    CURRENT_INSTITUTION = DRIVE_DATA.institutions.find(
+        i => i.folderId === folderId
+    );
+
+    localStorage.setItem("institution", JSON.stringify(CURRENT_INSTITUTION));
+
+    document.getElementById("subTitle").textContent = "🏫 " + name;
+    document.getElementById("institutionModal").style.display = "none";
+
+    loadAllDataFromDrive();
+}
+
+function loadAllDataFromDrive() {
+    loadStudents(CURRENT_INSTITUTION.files.students);
+    loadEmployes(CURRENT_INSTITUTION.files.employes);
+    loadNewAbsented(CURRENT_INSTITUTION.files.newAbsented);
+    loadOldAbsented(CURRENT_INSTITUTION.files.oldAbsented);
+}
 
 /* =======================
    روابط Google Apps Script
@@ -366,6 +424,7 @@ function handleAbsentClick() {
 
     loadStudents();
 }
+
 
 
 
