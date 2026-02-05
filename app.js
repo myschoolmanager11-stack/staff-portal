@@ -62,40 +62,37 @@ function loadEmployees() {
         return;
     }
 
-    fetch(CURRENT_INSTITUTION.files.employes)
-        .then(res => {
-            if (!res.ok) throw new Error();
-            return res.text();
-        })
-        .then(text => {
+    // المحتوى موجود مباشرة هنا
+    const text = CURRENT_INSTITUTION.files.employes.content;
 
-            loginTableBody.innerHTML = "";
-            selectedUser = null;
+    loginTableBody.innerHTML = "";
+    selectedUser = null;
 
-            text.split("\n")
-                .map(l => l.trim())
-                .filter(l => l && l.includes(";"))
-                .forEach(line => {
+    text.split("\n")
+        .map(l => l.trim())
+        .filter(l => l && l.includes(";"))
+        .forEach(line => {
 
-                    const parts = line.split(";");
+            const parts = line.split(";");
 
-                    const name = parts[0].trim();
-                    const pass = parts[1].trim();
+            const name = parts[0].trim();
+            const pass = parts[1].trim();
 
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `<td>${name}</td><td>—</td>`;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${name}</td><td>—</td>`; // عمود كلمة المرور مخفي
 
-                    tr.onclick = () => {
-                        selectedUser = { name, pass };
-                        [...loginTableBody.children]
-                            .forEach(r => r.classList.remove("selected"));
-                        tr.classList.add("selected");
-                    };
+            tr.onclick = () => {
+                selectedUser = { name, pass };
+                [...loginTableBody.children].forEach(r => r.classList.remove("selected"));
+                tr.classList.add("selected");
+            };
 
-                    loginTableBody.appendChild(tr);
-                });
-        })
-        .catch(() => alert("❌ تعذر تحميل ملف الموظفين"));
+            loginTableBody.appendChild(tr);
+        });
+
+    if (loginTableBody.children.length === 0) {
+        alert(`⚠️ لا توجد بيانات موظفين صالحة في ملف "${CURRENT_INSTITUTION.files.employes.name}"`);
+    }
 }
 
 /* تسجيل الدخول */
@@ -126,3 +123,4 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
