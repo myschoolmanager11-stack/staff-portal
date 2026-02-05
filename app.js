@@ -14,84 +14,15 @@ const PORTAL_NAME = "بوابة الأساتذة والموظفين";
 let currentKey = "";
 let qrScanner = null;
 
-// 🔹 متغيرات اختيار المؤسسة
-let CURRENT_INSTITUTION = null;
-let DRIVE_DATA = null;
+// روابط Google Apps Script
+const studentsWebAppUrl = "https://script.google.com/macros/s/AKfycbx5d5cS3Kr-sQZS-iMd8LtArz-Q2nbkZxqZn-Bl6xpMf_RZSNsI2RHKoaHPQk5KEYW_5w/exec";
+const appendWebAppUrl = studentsWebAppUrl;
 
-// 🔹 رابط سكريبت Drive (يعيد JSON لجميع المؤسسات)
-const DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
-
-// 🔹 متغيرات التلاميذ
-let allStudents = [];      // كل التلاميذ
-let visibleStudents = [];  // التلاميذ المعروضون بعد البحث
-let studentsWebAppUrl = null;  // رابط تحميل التلاميذ للمؤسسة المختارة
-let appendWebAppUrl = null;    // رابط إرسال الغياب للمؤسسة المختارة
+let allStudents = [];
+let visibleStudents = [];
 
 /* =======================
-   تحميل بيانات Drive عند فتح الصفحة
-======================= */
-document.addEventListener("DOMContentLoaded", () => {
-    loadDriveData();
-});
-
-function loadDriveData() {
-    fetch(DRIVE_API_URL)
-        .then(res => res.json())
-        .then(data => {
-            DRIVE_DATA = data;
-            fillInstitutions(data.institutions);
-            document.getElementById("institutionModal").style.display = "flex";
-        })
-        .catch(() => alert("فشل الاتصال بـ Google Drive"));
-}
-
-/* =======================
-   ملء قائمة المؤسسات
-======================= */
-function fillInstitutions(list) {
-    const select = document.getElementById("institutionSelect");
-    select.innerHTML = "";
-    list.forEach(inst => {
-        const opt = document.createElement("option");
-        opt.value = inst.folderId;
-        opt.textContent = inst.name;
-        select.appendChild(opt);
-    });
-}
-
-/* =======================
-   تأكيد اختيار المؤسسة
-======================= */
-function confirmInstitution() {
-    const select = document.getElementById("institutionSelect");
-    const folderId = select.value;
-    const name = select.options[select.selectedIndex].text;
-
-    CURRENT_INSTITUTION = DRIVE_DATA.institutions.find(i => i.folderId === folderId);
-    localStorage.setItem("institution", JSON.stringify(CURRENT_INSTITUTION));
-
-    document.getElementById("subTitle").textContent = "🏫 " + name;
-    document.getElementById("institutionModal").style.display = "none";
-
-    // 🔹 تحديث روابط التلاميذ بعد اختيار المؤسسة
-    studentsWebAppUrl = CURRENT_INSTITUTION.files.students;
-    appendWebAppUrl = CURRENT_INSTITUTION.files.students;
-
-    loadAllDataFromDrive();
-}
-
-/* =======================
-   تحميل جميع الملفات من Drive
-======================= */
-function loadAllDataFromDrive() {
-    loadStudents(studentsWebAppUrl);
-    loadEmployes(CURRENT_INSTITUTION.files.employes);
-    loadNewAbsented(CURRENT_INSTITUTION.files.newAbsented);
-    loadOldAbsented(CURRENT_INSTITUTION.files.oldAbsented);
-}
-
-/* =======================
-   القائمة الجانبية
+   القائمة
 ======================= */
 function toggleMenu() {
     const menu = document.getElementById("dropdownMenu");
@@ -102,8 +33,8 @@ function handleItemClick(name) {
     toggleMenu();
     selectedTitle.textContent = name;
     subTitle.textContent = name;
-
     currentKey = "drive_" + name;
+
     const savedLink = localStorage.getItem(currentKey);
     if (savedLink) loadFile(savedLink);
     else openModal(name);
@@ -197,9 +128,7 @@ function stopQR() {
     }
 }
 
-/* =======================
-   مسح جميع الروابط
-======================= */
+/* ===== مسح الكل ===== */
 function clearAllLinks() {
     toggleMenu();
     if (confirm("⚠️ هل تريد مسح جميع الروابط المحفوظة؟")) {
@@ -214,11 +143,8 @@ function clearAllLinks() {
 function handleAbsentClick() {
     document.getElementById("absentModal").style.display = "flex";
 
-    // استعادة القيم من localStorage
-    const savedTeacher = localStorage.getItem("teacherName") || "";
-    const savedSubject = localStorage.getItem("subjectName") || "";
-    document.getElementById("teacherName").value = savedTeacher;
-    document.getElementById("subjectName").value = savedSubject;
+    document.getElementById("teacherName").value = localStorage.getItem("teacherName") || "";
+    document.getElementById("subjectName").value = localStorage.getItem("subjectName") || "";
 
     loadStudents();
 }
@@ -233,12 +159,12 @@ function hideLoading() { document.getElementById("loadingText").style.display = 
 /* =======================
    تحميل التلاميذ
 ======================= */
-function loadStudents(url) {
-    if (!url) return alert("يرجى اختيار المؤسسة أولًا");
+function loadStudents() {
     showLoading();
-    fetch(url)
+    fetch(studentsWebAppUrl + "?action=getStudents")
         .then(res => res.json())
         .then(data => {
+            if (data.status !== "success") throw new Error(data.message || "خطأ غير معروف");
             allStudents = data.students || [];
             visibleStudents = [...allStudents];
             fillClasseFilter(allStudents);
@@ -248,6 +174,7 @@ function loadStudents(url) {
         .finally(hideLoading);
 }
 
+/* تعبئة الأقسام */
 function fillClasseFilter(students) {
     const sel = document.getElementById("classeFilter");
     sel.innerHTML = `<option value="">كل الأقسام</option>`;
@@ -259,37 +186,32 @@ function fillClasseFilter(students) {
     });
 }
 
+/* ملء جدول الغياب */
 function fillAbsentTable(students) {
     const tbody = document.querySelector("#absentTable tbody");
     tbody.innerHTML = "";
-    students.forEach((s, i) => {
+    students.forEach((s,i)=>{
         const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${s.name}</td>
-            <td>${s.classe}</td>
-            <td><input type="checkbox" data-id="${i}"></td>
-        `;
+        row.innerHTML = `<td>${s.name}</td><td>${s.classe}</td><td><input type="checkbox" data-id="${i}"></td>`;
         tbody.appendChild(row);
     });
 }
 
-/* =======================
-   البحث والفلترة
-======================= */
-document.getElementById("absentSearch").addEventListener("input", function () {
+/* البحث في قائمة التلاميذ */
+document.getElementById("absentSearch").addEventListener("input", function() {
     const q = this.value.toLowerCase();
-    visibleStudents = allStudents.filter(s =>
-        s.name.toLowerCase().includes(q) || s.classe.toLowerCase().includes(q)
-    );
+    visibleStudents = allStudents.filter(s => s.name.toLowerCase().includes(q) || s.classe.toLowerCase().includes(q));
     fillAbsentTable(visibleStudents);
 });
 
-document.getElementById("classeFilter").addEventListener("change", function () {
-    visibleStudents = this.value
-        ? allStudents.filter(s => s.classe === this.value)
-        : [...allStudents];
+/* فلترة القسم */
+document.getElementById("classeFilter").addEventListener("change", function() {
+    if(this.value==="") visibleStudents=[...allStudents];
+    else visibleStudents = allStudents.filter(s=>s.classe===this.value);
     fillAbsentTable(visibleStudents);
 });
+
+function reloadStudents() { loadStudents(); }
 
 /* =======================
    إرسال الغائبين
@@ -299,73 +221,51 @@ function sendSelectedStudents() {
     const subject = document.getElementById("subjectName").value.trim();
     const classe = document.getElementById("classeFilter").value || "";
     const now = new Date();
-    const hour = now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0");
+    const hour = now.getHours().toString().padStart(2,"0")+":"+now.getMinutes().toString().padStart(2,"0");
+    const dateStr = now.getDate().toString().padStart(2,"0")+"."+ (now.getMonth()+1).toString().padStart(2,"0")+"."+now.getFullYear();
+
     const key = `lastSent_${teacher}_${subject}_${classe}`;
     const lastHour = localStorage.getItem(key);
-
-    if (lastHour === hour) {
-        if (!confirm("⚠️ تم إرسال هذه القائمة في هذه الساعة بالفعل. هل تريد الإرسال مرة أخرى؟")) return;
-    }
+    if(lastHour===hour && !confirm("⚠️ لقد تم إرسال القائمة هذا الساعة بالفعل. هل تريد الإرسال مرة أخرى؟")) return;
 
     const checked = document.querySelectorAll("#absentTable tbody input[type=checkbox]:checked");
     const selected = Array.from(checked).map(cb => visibleStudents[parseInt(cb.dataset.id)]);
-    if (!selected.length) return alert("لم يتم تحديد أي تلميذ");
+    if(selected.length===0){ alert("لم يتم تحديد أي تلميذ"); return; }
 
-    / 🔹 إضافة تاريخ اليوم بصيغة يوم.شهر.سنة
-const today = new Date();
-const day = String(today.getDate()).padStart(2, "0");
-const month = String(today.getMonth() + 1).padStart(2, "0"); // الأشهر تبدأ من 0
-const year = today.getFullYear();
-const dateStr = `${day}.${month}.${year}`;
-
-// 🔹 إعداد نص الغائبين
-let textList = `${dateStr}\n========================================\n`;
-textList += `الأستاذ: ${teacher}  مادة ${subject}  ${hour}` + (classe ? "  / " + classe : "") + "\n\n";
-textList += selected.map(s => `${s.name} ; ${s.classe}`).join("\n");
+    let textList = `${dateStr}\n========================================\n`;
+    textList += `الأستاذ: ${teacher}  مادة ${subject}  ${hour}` + (classe? "  / "+classe:"") + "\n\n";
+    textList += selected.map(s=>`${s.name} ; ${s.classe}`).join("\n");
 
     fetch(appendWebAppUrl + "?action=addAbsent&list=" + encodeURIComponent(textList))
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === "success") {
+        .then(res=>res.json())
+        .then(data=>{
+            if(data.status==="success"){
                 alert("✅ تم إرسال القائمة بنجاح");
-                localStorage.setItem(key, hour);
-                localStorage.setItem("teacherName", teacher);
-                localStorage.setItem("subjectName", subject);
-            } else alert("❌ خطأ أثناء الإرسال: " + (data.message || ""));
+                localStorage.setItem(key,hour);
+                localStorage.setItem("teacherName",teacher);
+                localStorage.setItem("subjectName",subject);
+            } else alert("❌ خطأ أثناء الإرسال: "+(data.message||""));
             closeAbsentModal();
         })
-        .catch(err => { alert("❌ فشل الاتصال بالسيرفر"); console.error(err); });
+        .catch(err=>{ alert("❌ فشل الاتصال بالسيرفر"); console.error(err); });
 }
 
 /* =======================
    اتصل بنا
 ======================= */
 function openContactModal() {
-    document.getElementById("contactModal").style.display = "flex";
-    contactEmail.value = "";
-    contactPhone.value = "";
-    contactMessage.value = "";
+    document.getElementById("contactModal").style.display="flex";
+    contactEmail.value=""; contactPhone.value=""; contactMessage.value="";
 }
-
-function closeContactModal() { document.getElementById("contactModal").style.display = "none"; }
-
+function closeContactModal(){ document.getElementById("contactModal").style.display="none"; }
 function sendContactMessage() {
     const email = contactEmail.value.trim();
     const phone = contactPhone.value.trim();
     const message = contactMessage.value.trim();
-    if (!email || !message) return alert("يرجى إدخال البريد الإلكتروني ومضمون الرسالة");
-
+    if(!email||!message){ alert("يرجى إدخال البريد الإلكتروني ومضمون الرسالة"); return; }
     const subject = `رسالة من ${PORTAL_NAME}`;
-    const body =
-        `البريد الإلكتروني: ${email}\n` +
-        `رقم الهاتف: ${phone || "غير مدخل"}\n\n` +
-        `مضمون الرسالة:\n${message}`;
-
-    const gmailLink = "https://mail.google.com/mail/?view=cm&fs=1" +
-        "&to=myschoolmanager11@gmail.com" +
-        "&su=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(body);
-
-    window.open(gmailLink, "_blank");
-    setTimeout(closeContactModal, 500);
+    const body = `البريد الإلكتروني: ${email}\nرقم الهاتف: ${phone||"غير مدخل"}\n\nمضمون الرسالة:\n${message}`;
+    const gmailLink = "https://mail.google.com/mail/?view=cm&fs=1&to=myschoolmanager11@gmail.com&su="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+    window.open(gmailLink,"_blank");
+    setTimeout(closeContactModal,500);
 }
