@@ -269,8 +269,10 @@ body {
     z-index: 9999;
 }
 
-#institutionModal > div {
+.modalBox {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
+    min-width: 300px;
+    text-align: center;
 }
