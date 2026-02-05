@@ -49,13 +49,67 @@ button:hover { opacity:0.9; }
 
 .login-btn { width:100%; padding:7px 0; background-color:#1976d2; color:#fff; font-weight:bold; border-radius:5px; }
 
-/* جدول تسجيل الدخول */
-#loginTable { width:100%; border-collapse:collapse; font-size:8.5pt; }
-#loginTable th, #loginTable td { border:1px solid #ccc; padding:4px 6px; text-align:left; }
-#loginTable tr:hover { background-color:#f0f0f0; cursor:pointer; }
-#loginPassword { width:calc(100% - 10px); padding:5px; margin:8px 0; border-radius:5px; border:1px solid #ccc; font-size:8.5pt; }
+/* ===== تحسين جدول تسجيل الدخول ===== */
+.table-container {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+#loginTable th {
+    background-color: #1976d2;
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    padding: 6px;
+}
+
+#loginTable td {
+    padding: 6px;
+    vertical-align: middle;
+}
+
+#loginTable tr:hover {
+    background-color: #cce5ff;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#loginTable tr.selected {
+    background-color: #2196f3;
+    color: #fff;
+}
+
+/* إضافة أيقونات للصفوف */
+.login-icon {
+    display: inline-block;
+    width: 18px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+/* مودال تسجيل الدخول */
+.login-content {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    padding: 20px 25px;
+}
+
+.login-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+/* حقل كلمة المرور */
+#loginPassword {
+    padding-left: 10px;
+}
 
 /* Footer */
 .app-footer { background:#3f51b5; color:white; padding:8px; overflow:hidden; margin-top:30px; }
 .footer-marquee { white-space:nowrap; font-size:13px; animation:move 20s linear infinite; }
 @keyframes move { from{transform:translateX(-100%);} to{transform:translateX(100%);} }
+
