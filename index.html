@@ -5,7 +5,6 @@
     <title>الفضاء الرقمي الموحد</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
@@ -16,103 +15,61 @@
             مرحبًا بك! الرجاء اختيار المؤسسة وتسجيل الدخول للمتابعة.
         </p>
     </div>
-
     <div class="right-buttons">
         <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" disabled>☰</button>
     </div>
-
-    <div class="dropdown-menu" id="dropdownMenu" style="display:none;"></div>
+    <div class="dropdown-menu" id="dropdownMenu"></div>
 </header>
 
 <div class="container">
-
-    <!-- نافذة اختيار المؤسسة + تسجيل الدخول -->
+    <!-- مودال تسجيل الدخول -->
     <div id="loginModal" class="modal" style="display:flex;">
         <div class="modal-content login-content">
             <h3>🔑 تسجيل الدخول</h3>
 
-            <!-- اختيار المؤسسة أولًا -->
             <div class="login-field">
-                <label>🏫 حدد المؤسسة التربوية من القائمة:</label>
+                <label>🏫 حدد المؤسسة:</label>
                 <select id="institutionSelect"></select>
             </div>
 
-            <!-- اختيار المستخدم -->
             <div class="login-field">
-                <label>👤 تسجيل الدخول:</label>
+                <label>👤 نوع المستخدم:</label>
                 <select id="userTypeSelect">
                     <option value="">-- اختر نوع المستخدم --</option>
                     <option value="teacher">الأساتذة</option>
                     <option value="consultation">الإشراف التربوي</option>
-                    <option value="parent">أولياء الأمر</option>
+                    <option value="parent">أولياء الأمور</option>
                 </select>
             </div>
 
-            <!-- زر تسجيل الدخول -->
-            <button class="login-btn" onclick="confirmLogin()">🔓 تسجيل الدخول</button>
+            <button id="proceedBtn" class="login-btn" disabled>➡ متابعة</button>
         </div>
     </div>
 
-    <!-- ===== اختيار المؤسسة + المستخدم ===== -->
-<div class="modal" id="loginSelectModal">
-    <div class="modal-content login-content">
-        <h3>🏫 اختر المؤسسة ونوع المستخدم</h3>
+    <!-- مودال الجدول لتسجيل الدخول -->
+    <div class="modal" id="loginTableModal">
+        <div class="modal-content login-content">
+            <h3>📝 تسجيل الدخول</h3>
+            <div class="table-container" style="max-height: 220px; overflow-y:auto;">
+                <table id="loginTable">
+                    <thead>
+                        <tr>
+                            <th>الإسم واللقب</th>
+                            <th>المادة / القسم</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
 
-        <!-- اختيار المؤسسة -->
-        <div class="login-field">
-            <label for="institutionSelect">المؤسسة</label>
-            <select id="institutionSelect">
-                <option value="">اختر المؤسسة</option>
-                <!-- سيتم ملؤها ديناميكياً -->
-            </select>
+            <div class="login-field">
+                <input type="password" id="loginPassword" placeholder="كلمة المرور (سنة الميلاد)">
+            </div>
+
+            <button id="loginConfirmBtn" class="login-btn">🔑 تسجيل الدخول</button>
         </div>
-
-        <!-- اختيار نوع المستخدم -->
-        <div class="login-field">
-            <label for="userTypeSelect">تسجيل الدخول كـ</label>
-            <select id="userTypeSelect">
-                <option value="">اختر نوع المستخدم</option>
-                <option value="teacher">أستاذ</option>
-                <option value="consultation">إستشارة</option>
-                <option value="admin">أمانة</option>
-                <option value="parent">ولي الأمر</option>
-                <option value="guidance">مستشار التوجيه المدرسي</option>
-                <option value="clubs">النوادي المدرسية</option>
-            </select>
-        </div>
-
-        <button id="proceedBtn" class="login-btn" disabled>➡ تسجيل الدخول</button>
     </div>
-</div>
 
-<!-- ===== مودال تسجيل الدخول بالجدول ===== -->
-<div class="modal" id="loginTableModal">
-    <div class="modal-content login-content">
-        <h3>📝 تسجيل الدخول</h3>
-
-        <!-- الجدول -->
-        <div class="table-container" style="max-height: 200px; overflow-y: auto;">
-            <table id="loginTable">
-                <thead>
-                    <tr>
-                        <th>الإسم واللقب</th>
-                        <th>المادة / القسم</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <!-- حقل كلمة المرور -->
-        <div class="login-field">
-            <input type="password" id="loginPassword" placeholder="كلمة المرور">
-        </div>
-
-        <button id="loginConfirmBtn" class="login-btn">🔑 تسجيل الدخول</button>
-    </div>
-</div>
-
-    <!-- مساحة المحتوى الرئيسية -->
     <div id="mainContent"></div>
 </div>
 
@@ -121,7 +78,6 @@
         Myschoolmanager | 2010 - 2026 ©  – برمجة وتصميم لطرش عبدالقادر aabdousoft@gmail.com  | Algeria, medea 26000
     </div>
 </footer>
-
 
 <script src="app.js"></script>
 </body>
