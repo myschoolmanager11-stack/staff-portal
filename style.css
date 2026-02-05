@@ -185,6 +185,44 @@ button:hover {
     border-radius: 5px;
 }
 
+/* الجدول داخل مودال تسجيل الدخول */
+#loginTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+}
+
+#loginTable th,
+#loginTable td {
+    border: 1px solid #ccc;
+    padding: 4px 6px;
+    text-align: left;
+}
+
+#loginTable tr:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+/* حقل كلمة المرور وزر الدخول */
+#loginPassword {
+    width: calc(100% - 10px);
+    padding: 5px;
+    margin: 8px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 8.5pt;
+}
+
+#loginConfirmBtn {
+    background-color: #1976d2;
+    color: #fff;
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 8.5pt;
+    width: 100%;
+}
+
 /* ===== Footer ===== */
 .app-footer {
     background: #3f51b5;
@@ -204,4 +242,5 @@ button:hover {
     from { transform: translateX(-100%); }
     to   { transform: translateX(100%); }
 }
+
 
