@@ -71,8 +71,10 @@ function showLoginTable(data,columnField){
         else if(CURRENT_USER_TYPE==="consultation") icon="🛡️";
         else if(CURRENT_USER_TYPE==="parent") icon="👨‍👩‍👧";
 
-        row.innerHTML=`<td style="width:65%;"><span class="login-icon">${icon}</span>${d.name}</td>
-                       <td style="width:35%">${d[columnField]}</td>`;
+        row.innerHTML=`
+    <td><span class="login-icon">${icon}</span>${d.name}</td>
+    <td>${d[columnField]}</td>
+`
 
         row.addEventListener("click",()=>{
             selectedUser=d;
@@ -118,3 +120,4 @@ function loadDropdownMenuForUserType(type){
 
 // تفعيل القائمة
 function toggleMenu(){ dropdownMenu.style.display = dropdownMenu.style.display==="block"?"none":"block"; }
+
