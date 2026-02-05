@@ -185,16 +185,13 @@ button:hover {
     border-radius: 5px;
 }
 
-/* =======================
-   Footer
-======================= */
+/* ===== Footer ===== */
 .app-footer {
-    padding: 10px 15px;
-    text-align: center;
-    font-size: 8pt;
-    color: #555;
-    background-color: #eceff1;
-    margin-top: 20px;
+    background: #3f51b5;
+    color: white;
+    padding: 8px;
+    overflow: hidden;
+    margin-top: 30px;
 }
 
 .footer-marquee {
@@ -207,3 +204,4 @@ button:hover {
     from { transform: translateX(-100%); }
     to   { transform: translateX(100%); }
 }
+
