@@ -14,15 +14,19 @@
 
 <header class="top-bar">
     
-<div id="institutionModal">
-    <h3>اختر المؤسسة</h3>
+<!-- نافذة اختيار المؤسسة -->
+<div id="institutionModal" style="display:none;">
+    <div class="modalBox">
+        <h3>اختر المؤسسة</h3>
 
-    <select id="institutionSelect">
-        <!-- تُملأ ديناميكيًا -->
-    </select>
+        <select id="institutionSelect"></select>
 
-    <button onclick="confirmInstitution()">متابعة</button>
+        <button onclick="confirmInstitution()">متابعة</button>
+    </div>
 </div>
+
+<!-- العنوان الفرعي -->
+<div id="subTitle"></div>
     
     <div class="right-buttons">
         <button class="menu-btn" onclick="toggleMenu()" title="القائمة">☰</button>
