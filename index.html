@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <header class="top-bar">
     <div class="app-title">
         <h2 id="selectedTitle">🌐 فضاء الخدمات</h2>
@@ -19,8 +20,9 @@
 </header>
 
 <div class="container">
+
     <!-- مودال اختيار المؤسسة ونوع المستخدم -->
-    <div id="loginModal" class="modal" style="display:flex;">
+    <div id="loginModal" class="modal">
         <div class="modal-content login-content">
             <h3>🔑 تسجيل الدخول</h3>
             <div class="login-field">
@@ -40,11 +42,11 @@
         </div>
     </div>
 
-    <!-- مودال الجدول لتسجيل الدخول -->
-    <div class="modal" id="loginTableModal">
+    <!-- مودال جدول تسجيل الدخول -->
+    <div class="modal" id="loginTableModal" style="display:none;">
         <div class="modal-content login-content">
             <h3>📝 تسجيل الدخول</h3>
-            <div class="table-container" style="max-height: 220px; overflow-y:auto;">
+            <div class="table-container" style="max-height:220px; overflow-y:auto;">
                 <table id="loginTable">
                     <thead>
                         <tr>
@@ -67,7 +69,7 @@
 
 <footer class="app-footer">
     <div class="footer-marquee">
-        Myschoolmanager | 2010 - 2026 ©  – برمجة وتصميم عبدالقادر aabdousoft@gmail.com | Algeria, Medea 26000
+        Myschoolmanager | 2010 - 2026 © – برمجة وتصميم عبدالقادر aabdousoft@gmail.com | Algeria, Medea 26000
     </div>
 </footer>
 
