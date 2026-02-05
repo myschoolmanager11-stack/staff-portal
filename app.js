@@ -1,4 +1,3 @@
-// ===== عناصر DOM =====
 const institutionSelect = document.getElementById("institutionSelect");
 const userTypeSelect = document.getElementById("userTypeSelect");
 const proceedBtn = document.getElementById("proceedBtn");
@@ -17,30 +16,27 @@ let CURRENT_USER_TYPE = null;
 let loginData = [];
 let selectedUser = null;
 
-// نموذج المؤسسات
-const institutions = ["المؤسسة الأولى", "المؤسسة الثانية", "المؤسسة الثالثة"];
-window.addEventListener("DOMContentLoaded", () => {
-    institutions.forEach(inst => {
-        const opt = document.createElement("option");
-        opt.value = inst; opt.textContent = inst;
+// المؤسسات
+const institutions = ["المؤسسة الأولى","المؤسسة الثانية","المؤسسة الثالثة"];
+window.addEventListener("DOMContentLoaded", ()=>{
+    institutions.forEach(inst=>{
+        const opt=document.createElement("option"); opt.value=inst; opt.textContent=inst;
         institutionSelect.appendChild(opt);
     });
 });
 
 // تفعيل زر متابعة
-function checkProceedEnable(){
-    proceedBtn.disabled = !(institutionSelect.value && userTypeSelect.value);
-}
+function checkProceedEnable(){ proceedBtn.disabled = !(institutionSelect.value && userTypeSelect.value); }
 institutionSelect.addEventListener("change", checkProceedEnable);
 userTypeSelect.addEventListener("change", checkProceedEnable);
 
 // متابعة
-proceedBtn.addEventListener("click", () => {
+proceedBtn.addEventListener("click",()=>{
     CURRENT_INSTITUTION = institutionSelect.value;
     CURRENT_USER_TYPE = userTypeSelect.value;
     if(["teacher","consultation"].includes(CURRENT_USER_TYPE)) loadEmployees();
     else if(CURRENT_USER_TYPE==="parent") loadStudents();
-    else { loginModal.style.display="none"; menuBtn.disabled=false; fillMenu(CURRENT_USER_TYPE); }
+    else { loginModal.style.display="none"; menuBtn.disabled=false; loadDropdownMenuForUserType(CURRENT_USER_TYPE); }
 });
 
 // تحميل الموظفين
@@ -65,24 +61,20 @@ function loadStudents(){
     });
 }
 
-// ===== عرض الجدول مع أيقونات =====
-function showLoginTable(data, columnField){
+// عرض الجدول
+function showLoginTable(data,columnField){
     loginTableBody.innerHTML="";
     data.forEach(d=>{
         const row=document.createElement("tr");
-
-        // اختيار أيقونة حسب النوع
-        let icon="👤"; 
+        let icon="👤";
         if(CURRENT_USER_TYPE==="teacher") icon="🧑‍🏫";
         else if(CURRENT_USER_TYPE==="consultation") icon="🛡️";
         else if(CURRENT_USER_TYPE==="parent") icon="👨‍👩‍👧";
 
-        row.innerHTML=`
-            <td><span class="login-icon">${icon}</span>${d.name}</td>
-            <td>${d[columnField]}</td>
-        `;
+        row.innerHTML=`<td style="width:65%;"><span class="login-icon">${icon}</span>${d.name}</td>
+                       <td style="width:35%">${d[columnField]}</td>`;
 
-        row.addEventListener("click", ()=>{
+        row.addEventListener("click",()=>{
             selectedUser=d;
             [...loginTableBody.querySelectorAll("tr")].forEach(r=>r.classList.remove("selected"));
             row.classList.add("selected");
@@ -96,7 +88,7 @@ function showLoginTable(data, columnField){
 // التحقق من كلمة المرور
 loginConfirmBtn.addEventListener("click",()=>{
     if(!selectedUser){ alert("اختر المستخدم من الجدول"); return; }
-    const year=selectedUser.dob.split("-")[2];
+    const year = selectedUser.dob.split("-")[2];
     if(loginPassword.value===year){
         alert("✅ تم تسجيل الدخول بنجاح: "+selectedUser.name);
         loginTableModal.style.display="none";
@@ -107,17 +99,18 @@ loginConfirmBtn.addEventListener("click",()=>{
     } else alert("❌ كلمة المرور غير صحيحة");
 });
 
-// ملء القائمة
+// ملء القائمة مع أيقونات
 function loadDropdownMenuForUserType(type){
     dropdownMenu.innerHTML="";
     const items = {
-        teacher:["📋 القوائم الإسمية للتلاميذ","📊 قوائم صب النقاط","📅 قائمة التلاميذ الغائبين قبل اليوم","📤 إرسال أسماء التلاميذ الغائبين حاليًا"],
-        parent:["📋 سجل الغيابات والمراسلات","👨‍👩‍👧 جدول استقبال الأولياء"],
-        consultation:["📋 القوائم الإسمية للتلاميذ","📊 قائمة الأساتذة الغائبين"]
-    }[type]||["📧 تواصل إداري"];
-    items.forEach(txt=>{
-        const div=document.createElement("div"); div.textContent=txt;
-        div.onclick=()=>alert("تم اختيار: "+txt);
+        teacher:[["📋","القوائم الإسمية للتلاميذ"],["📊","قوائم صب النقاط"],["📅","قائمة التلاميذ الغائبين قبل اليوم"],["📤","إرسال أسماء التلاميذ الغائبين حاليًا"]],
+        parent:[["📋","سجل الغيابات والمراسلات"],["👨‍👩‍👧","جدول استقبال الأولياء"]],
+        consultation:[["📋","القوائم الإسمية للتلاميذ"],["📊","قائمة الأساتذة الغائبين"]]
+    }[type]||[["📧","تواصل إداري"]];
+
+    items.forEach(([icon,text])=>{
+        const div=document.createElement("div"); div.innerHTML=`<span>${icon}</span> ${text}`;
+        div.onclick=()=>alert("تم اختيار: "+text);
         dropdownMenu.appendChild(div);
     });
     dropdownMenu.style.display="none";
@@ -125,4 +118,3 @@ function loadDropdownMenuForUserType(type){
 
 // تفعيل القائمة
 function toggleMenu(){ dropdownMenu.style.display = dropdownMenu.style.display==="block"?"none":"block"; }
-
