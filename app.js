@@ -65,17 +65,29 @@ function loadStudents(){
     });
 }
 
-// عرض الجدول
-function showLoginTable(data,columnField){
+// ===== عرض الجدول مع أيقونات =====
+function showLoginTable(data, columnField){
     loginTableBody.innerHTML="";
     data.forEach(d=>{
         const row=document.createElement("tr");
-        row.innerHTML=`<td>${d.name}</td><td>${d[columnField]}</td>`;
+
+        // اختيار أيقونة حسب النوع
+        let icon="👤"; 
+        if(CURRENT_USER_TYPE==="teacher") icon="🧑‍🏫";
+        else if(CURRENT_USER_TYPE==="consultation") icon="🛡️";
+        else if(CURRENT_USER_TYPE==="parent") icon="👨‍👩‍👧";
+
+        row.innerHTML=`
+            <td><span class="login-icon">${icon}</span>${d.name}</td>
+            <td>${d[columnField]}</td>
+        `;
+
         row.addEventListener("click", ()=>{
             selectedUser=d;
-            [...loginTableBody.querySelectorAll("tr")].forEach(r=>r.style.background="");
-            row.style.background="#cce5ff";
+            [...loginTableBody.querySelectorAll("tr")].forEach(r=>r.classList.remove("selected"));
+            row.classList.add("selected");
         });
+
         loginTableBody.appendChild(row);
     });
     loginTableModal.style.display="flex";
@@ -113,3 +125,4 @@ function loadDropdownMenuForUserType(type){
 
 // تفعيل القائمة
 function toggleMenu(){ dropdownMenu.style.display = dropdownMenu.style.display==="block"?"none":"block"; }
+
