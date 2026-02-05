@@ -19,12 +19,19 @@ fetch(DRIVE_API_URL)
   .then(r => r.json())
   .then(d => {
     INSTITUTIONS = d.institutions;
+    if (INSTITUTIONS.length === 0) {
+      alert("⚠️ لا توجد بيانات للمؤسسات. يرجى التحقق من Google Drive.");
+    }
     INSTITUTIONS.forEach(i => {
       const o = document.createElement("option");
       o.value = i.folderId; // نستخدم folderId لتمييز المؤسسات
       o.textContent = i.name;
       institutionSelect.appendChild(o);
     });
+  })
+  .catch(err => {
+    console.error(err);
+    alert("❌ حدث خطأ أثناء تحميل بيانات المؤسسات من Google Drive.");
   });
 
 // تحديث واجهة المستخدم
@@ -35,6 +42,9 @@ function updateUI() {
 
 institutionSelect.onchange = () => {
   CURRENT_INSTITUTION = INSTITUTIONS.find(i => i.folderId === institutionSelect.value) || null;
+  if (CURRENT_INSTITUTION && (!CURRENT_INSTITUTION.files || !CURRENT_INSTITUTION.files.employes)) {
+    console.warn(`⚠️ لم يتم العثور على ملف الموظفين في مؤسسة ${CURRENT_INSTITUTION.name}`);
+  }
   updateUI();
 };
 
@@ -45,15 +55,18 @@ userTypeSelect.onchange = () => {
 
 // تحميل الموظفين من JSON مباشرة
 function loadEmployees() {
-  if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files.employes) {
-    alert("❌ خطأ: لم يتم العثور على بيانات الموظفين");
-    return;
-  }
-
   loginTableBody.innerHTML = "";
   selectedUser = null;
 
-  const lines = CURRENT_INSTITUTION.files.employes.content.split("\n");
+  if (!CURRENT_INSTITUTION) return;
+
+  const employesData = CURRENT_INSTITUTION.files?.employes?.content;
+  if (!employesData) {
+    alert(`⚠️ ملف الموظفين غير موجود أو فارغ في مؤسسة "${CURRENT_INSTITUTION.name}"`);
+    return;
+  }
+
+  const lines = employesData.split("\n");
   lines.forEach(line => {
     const parts = line.trim().split(";");
     if (parts.length < 2) return;
@@ -72,13 +85,17 @@ function loadEmployees() {
 
     loginTableBody.appendChild(tr);
   });
+
+  if (loginTableBody.children.length === 0) {
+    alert(`⚠️ لا توجد بيانات موظفين صالحة في ملف "${CURRENT_INSTITUTION.files.employes?.name}"`);
+  }
 }
 
 // تسجيل الدخول
 proceedBtn.onclick = () => {
   if (userTypeSelect.value === "parent") finishLogin("أولياء الأمر");
   else {
-    if (!selectedUser) return alert("اختر المستخدم");
+    if (!selectedUser) return alert("اختر المستخدم أولاً");
     if (loginPassword.value !== selectedUser.password) return alert("كلمة المرور غير صحيحة");
     finishLogin(selectedUser.name);
   }
