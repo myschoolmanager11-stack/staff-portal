@@ -8,19 +8,23 @@ const loginModal = document.getElementById("loginModal");
 const menuBtn = document.getElementById("menuBtn");
 const dropdownMenu = document.getElementById("dropdownMenu");
 
-let CURRENT_USER_TYPE = null;
+let INSTITUTIONS = [];
+let CURRENT_INSTITUTION = null;
 let selectedUser = null;
 
-const DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
+const DRIVE_API_URL =
+"https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
 
 /* تحميل المؤسسات */
 fetch(DRIVE_API_URL)
     .then(r => r.json())
     .then(d => {
-        d.institutions.forEach(i => {
+        INSTITUTIONS = d.institutions;
+
+        d.institutions.forEach(inst => {
             const o = document.createElement("option");
-            o.value = i.name;
-            o.textContent = i.name;
+            o.value = inst.name;
+            o.textContent = inst.name;
             institutionSelect.appendChild(o);
         });
     });
@@ -28,25 +32,39 @@ fetch(DRIVE_API_URL)
 /* التحكم في الواجهة */
 function updateUI() {
     proceedBtn.disabled = !(institutionSelect.value && userTypeSelect.value);
+
     usersBlock.style.display =
-        ["teacher","consultation"].includes(userTypeSelect.value)
+        ["teacher", "consultation"].includes(userTypeSelect.value)
         ? "block" : "none";
 }
-institutionSelect.onchange = updateUI;
+
+institutionSelect.onchange = () => {
+    CURRENT_INSTITUTION =
+        INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
+
+    updateUI();
+
+    if (usersBlock.style.display === "block") {
+        loadEmployees();
+    }
+};
+
 userTypeSelect.onchange = () => {
     updateUI();
     if (usersBlock.style.display === "block") loadEmployees();
 };
 
-/* تحميل الموظفين */
+/* تحميل الموظفين حسب المؤسسة */
 function loadEmployees() {
 
-    const EMPLOYES_URL =
-        "https://raw.githubusercontent.com/USER/REPO/main/Employes.txt";
+    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files.employes) {
+        alert("❌ ملف الموظفين غير موجود لهذه المؤسسة");
+        return;
+    }
 
-    fetch(EMPLOYES_URL)
+    fetch(CURRENT_INSTITUTION.files.employes)
         .then(res => {
-            if (!res.ok) throw new Error("تعذر تحميل ملف الموظفين");
+            if (!res.ok) throw new Error();
             return res.text();
         })
         .then(text => {
@@ -54,50 +72,47 @@ function loadEmployees() {
             loginTableBody.innerHTML = "";
             selectedUser = null;
 
-            text
-              .split("\n")
-              .map(l => l.trim())
-              .filter(l => l && l.includes(";"))
-              .forEach(line => {
+            text.split("\n")
+                .map(l => l.trim())
+                .filter(l => l && l.includes(";"))
+                .forEach(line => {
 
-                const parts = line.split(";");
+                    const parts = line.split(";");
 
-                if (parts.length < 2) return;
+                    const name = parts[0].trim();
+                    const pass = parts[1].trim();
 
-                const name = parts[0].trim();
-                const year = parts[1].trim();
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${name}</td><td>—</td>`;
 
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${name}</td>
-                    <td>—</td>
-                `;
+                    tr.onclick = () => {
+                        selectedUser = { name, pass };
+                        [...loginTableBody.children]
+                            .forEach(r => r.classList.remove("selected"));
+                        tr.classList.add("selected");
+                    };
 
-                tr.onclick = () => {
-                    selectedUser = { name, year };
-                    [...loginTableBody.children]
-                        .forEach(r => r.classList.remove("selected"));
-                    tr.classList.add("selected");
-                };
-
-                loginTableBody.appendChild(tr);
-            });
+                    loginTableBody.appendChild(tr);
+                });
         })
-        .catch(err => {
-            alert("❌ خطأ في تحميل بيانات الموظفين");
-            console.error(err);
-        });
+        .catch(() => alert("❌ تعذر تحميل ملف الموظفين"));
 }
 
 /* تسجيل الدخول */
 proceedBtn.onclick = () => {
-    if (userTypeSelect.value === "parent") finishLogin("أولياء الأمر");
-    else {
-        if (!selectedUser) return alert("اختر المستخدم");
-        if (loginPassword.value !== selectedUser.year)
-            return alert("كلمة المرور غير صحيحة");
-        finishLogin(selectedUser.name);
+
+    if (userTypeSelect.value === "parent") {
+        finishLogin("ولي الأمر");
+        return;
     }
+
+    if (!selectedUser)
+        return alert("⚠️ اختر المستخدم");
+
+    if (loginPassword.value !== selectedUser.pass)
+        return alert("❌ كلمة المرور غير صحيحة");
+
+    finishLogin(selectedUser.name);
 };
 
 function finishLogin(name) {
@@ -111,4 +126,3 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
-
