@@ -88,6 +88,7 @@ function loadStudents() {
 
 // ===== عرض الجدول =====
 function showLoginTable(data, columnField) {
+    loginModal.style.display = "none"; // إغلاق مودال اختيار المؤسسة
     loginTableBody.innerHTML = "";
     data.forEach(d => {
         const row = document.createElement("tr");
@@ -143,3 +144,4 @@ function loadDropdownMenuForUserType(type) {
 
 // تفعيل القائمة
 function toggleMenu() { dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block"; }
+
