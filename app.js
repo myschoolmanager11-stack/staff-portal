@@ -64,7 +64,7 @@ function loadEmployees() {
 
     fetch(CURRENT_INSTITUTION.files.employes)
         .then(res => {
-            if (!res.ok) throw new Error();
+            if (!res.ok) throw new Error("fetch failed");
             return res.text();
         })
         .then(text => {
@@ -73,30 +73,44 @@ function loadEmployees() {
             selectedUser = null;
 
             text.split("\n")
-                .map(l => l.trim())
-                .filter(l => l && l.includes(";"))
+                .map(line => line.trim())
+                .filter(line => line && line.includes(";"))
                 .forEach(line => {
 
+                    // التقسيم الصحيح: اسم ; كلمة مرور
                     const parts = line.split(";");
 
-                    const name = parts[0].trim();
-                    const pass = parts[1].trim();
+                    if (parts.length < 2) return;
+
+                    const fullName = parts[0].trim();
+                    const password = parts[1].trim();
 
                     const tr = document.createElement("tr");
-                    tr.innerHTML = `<td>${name}</td><td>—</td>`;
+                    tr.innerHTML = `
+                        <td>${fullName}</td>
+                    `;
 
                     tr.onclick = () => {
-                        selectedUser = { name, pass };
+                        selectedUser = {
+                            name: fullName,
+                            pass: password
+                        };
+
                         [...loginTableBody.children]
                             .forEach(r => r.classList.remove("selected"));
+
                         tr.classList.add("selected");
                     };
 
                     loginTableBody.appendChild(tr);
                 });
         })
-        .catch(() => alert("❌ تعذر تحميل ملف الموظفين"));
+        .catch(err => {
+            alert("❌ خطأ في تحميل بيانات الموظفين");
+            console.error(err);
+        });
 }
+
 
 /* تسجيل الدخول */
 proceedBtn.onclick = () => {
@@ -126,3 +140,4 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
