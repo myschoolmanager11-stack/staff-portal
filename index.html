@@ -25,7 +25,6 @@
 
 <main class="container">
 
-    <!-- نافذة تسجيل الدخول -->
     <div id="loginModal" class="modal">
         <div class="modal-content login-content">
 
@@ -33,7 +32,9 @@
 
             <div class="login-field">
                 <label>🏫 حدد المؤسسة</label>
-                <select id="institutionSelect"></select>
+                <select id="institutionSelect">
+                    <option value="">-- اختر المؤسسة --</option>
+                </select>
             </div>
 
             <div class="login-field">
@@ -46,7 +47,6 @@
                 </select>
             </div>
 
-            <!-- جدول المستخدمين -->
             <div id="usersBlock" style="display:none;">
                 <div class="table-container">
                     <table id="loginTable">
@@ -61,8 +61,7 @@
                 </div>
 
                 <div class="login-field">
-                    <input type="password" id="loginPassword"
-                           placeholder="كلمة المرور">
+                    <input type="password" id="loginPassword" placeholder="كلمة المرور">
                 </div>
             </div>
 
@@ -77,7 +76,7 @@
 </main>
 
 <footer class="app-footer">
-    <div class="footer-marquee">
+       <div class="footer-marquee">
         Myschoolmanager | 2010 - 2026 © – برمجة وتصميم عبدالقادر aabdousoft@gmail.com | Algeria, Medea 26000
     </div>
 </footer>
