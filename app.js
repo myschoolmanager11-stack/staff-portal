@@ -8,6 +8,7 @@ const loginModal = document.getElementById("loginModal");
 const menuBtn = document.getElementById("menuBtn");
 const dropdownMenu = document.getElementById("dropdownMenu");
 
+
 let INSTITUTIONS = [];
 let CURRENT_INSTITUTION = null;
 let selectedUser = null;
@@ -18,15 +19,23 @@ const DRIVE_API_URL =
 /* تحميل المؤسسات */
 fetch(DRIVE_API_URL)
     .then(r => r.json())
-    .then(d => {
-        INSTITUTIONS = d.institutions;
+    .then(data => {
 
-        d.institutions.forEach(inst => {
-            const o = document.createElement("option");
-            o.value = inst.name;
-            o.textContent = inst.name;
-            institutionSelect.appendChild(o);
+        INSTITUTIONS = data.institutions;
+
+        institutionSelect.innerHTML =
+            `<option value="">-- اختر المؤسسة --</option>`;
+
+        INSTITUTIONS.forEach(inst => {
+            const opt = document.createElement("option");
+            opt.value = inst.folderId;   // ❗ نربط بالـ folderId
+            opt.textContent = inst.name;
+            institutionSelect.appendChild(opt);
         });
+    })
+    .catch(err => {
+        alert("❌ فشل تحميل المؤسسات");
+        console.error(err);
     });
 
 /* التحكم في الواجهة */
@@ -39,12 +48,19 @@ function updateUI() {
 }
 
 institutionSelect.onchange = () => {
+
+    const folderId = institutionSelect.value;
+
     CURRENT_INSTITUTION =
-        INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
+        INSTITUTIONS.find(i => i.folderId === folderId) || null;
 
     updateUI();
 
-    if (usersBlock.style.display === "block") {
+    // تحميل الموظفين فقط إذا كان النوع أستاذ أو إشراف
+    if (
+        CURRENT_INSTITUTION &&
+        ["teacher", "consultation"].includes(userTypeSelect.value)
+    ) {
         loadEmployees();
     }
 };
@@ -140,4 +156,5 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
 
