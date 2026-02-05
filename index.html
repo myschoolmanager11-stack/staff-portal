@@ -2,139 +2,69 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Myschoolmanager – الفضاء الرقمي</title>
+    <title>الفضاء الرقمي الموحد</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- QR -->
-    <script src="https://unpkg.com/html5-qrcode"></script>
-
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
 <header class="top-bar">
 
-    <!-- نافذة اختيار المؤسسة -->
-    <div id="institutionModal" class="modal" style="display:none;">
-        <div class="modalBox">
-            <h3>اختر المؤسسة</h3>
-            <select id="institutionSelect"></select>
-            <button onclick="confirmInstitution()">متابعة</button>
-        </div>
-    </div>
-
-    <!-- العنوان الرئيسي والفرعي -->
+    <!-- العنوان العام -->
     <div class="app-title">
-        <div id="mainTitle">👋 مرحبًا بك في الفضاء الرقمي</div>
-        <div id="subTitle"></div>
+        <h2 id="selectedTitle">🌐 فضاء الخدمات</h2>
+        <p class="welcome-text" id="welcomeText">
+            مرحبًا بك! الرجاء اختيار المؤسسة وتسجيل الدخول للمتابعة.
+        </p>
     </div>
 
-    <!-- زر القائمة -->
+    <!-- القائمة الرئيسية (زر معطل مبدئيًا) -->
     <div class="right-buttons">
-        <button class="menu-btn" onclick="toggleMenu()" title="القائمة">☰</button>
+        <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" disabled>☰ القائمة</button>
     </div>
 
     <!-- القائمة المنسدلة -->
-    <div class="dropdown-menu" id="dropdownMenu">
-        <div onclick="handleItemClick('القوائم الإسمية للتلاميذ')">📋 القوائم الإسمية للتلاميذ</div>
-        <div onclick="handleItemClick('قوائم صب النقاط للأستاذ')">📊 قوائم صب النقاط</div>
-        <div onclick="handleItemClick('قائمة التلاميذ الغائبين قبل اليوم')">📅 قائمة التلاميذ الغائبين قبل اليوم</div>
-        <div onclick="handleAbsentClick()">📤 إرسال أسماء التلاميذ الغائبين حاليًا</div>
-        <div onclick="handleItemClick('جدول خدمات الأستاذ')">🧑‍🏫 جدول خدمات الأستاذ</div>
-        <div onclick="handleItemClick('جدول التوقيت الأسبوعي للتلاميذ')">🕒 جدول التوقيت الأسبوعي للتلاميذ</div>
-        <div onclick="handleItemClick('استمارات ووثائق مختلفة')">📁 استمارات ووثائق مختلفة</div>
-        <div class="menu-contact" onclick="openContactModal()">📧 تواصل إداري</div>
-        <div class="menu-separator"></div>
-        <div class="menu-danger" onclick="clearAllLinks()">🗑 مسح جميع الروابط</div>
+    <div class="dropdown-menu" id="dropdownMenu" style="display:none;">
+        <!-- سيتم ملؤها ديناميكياً حسب نوع المستخدم -->
     </div>
 
 </header>
 
 <div class="container">
-    <h2 id="selectedTitle">🌐 فضاء خدمات الأساتذة</h2>
 
-    <p class="welcome-text">
-        يُعتبر الفضاء الرقمي منصة نوعية ووسيلة تكنولوجية رقمية فعالة لتعزيز التواصل بين الإدارة والأساتذة.<br>
-        يمكنهم الاطلاع على الوثائق والملفات المختلفة بطريقة سهلة وسريعة، سواء عبر رابط مباشر أو مسح رمز QR.<br>
-        الرجاء اختيار أحد العناصر من القائمة العلوية للمتابعة.
-    </p>
+    <!-- نافذة اختيار المؤسسة + تسجيل الدخول -->
+    <div id="loginModal" class="modal" style="display:flex;">
+        <div class="modal-content">
+            <h3>اختر المؤسسة وسجل الدخول</h3>
 
-    <!-- شريط أدوات المعاينة -->
-    <div class="viewer-toolbar" id="viewerToolbar" style="display:none;">
-        <button title="تعديل الرابط" onclick="editCurrentLink()">✏️</button>
-        <button title="تحميل الملف" onclick="downloadCurrentFile()">⬇️</button>
-        <button title="حذف الرابط" onclick="deleteCurrentLink()">🗑️</button>
-    </div>
+            <!-- اختيار المؤسسة -->
+            <label>المؤسسة:</label>
+            <select id="institutionSelect"></select>
 
-    <div class="viewer" id="viewerContainer"></div>
-</div>
+            <!-- تسجيل الدخول -->
+            <label>تسجيل الدخول:</label>
+            <select id="userTypeSelect">
+                <option value="">-- اختر نوع المستخدم --</option>
+                <option value="teacher">أستاذ</option>
+                <option value="parent">ولي الأمر</option>
+                <option value="consultation">إستشارة</option>
+                <option value="secretariat">أمانة</option>
+                <option value="counselor">مستشار التوجيه المدرسي</option>
+                <option value="clubs">النوادي المدرسية</option>
+            </select>
 
-<!-- نافذة إدخال الرابط -->
-<div class="modal" id="linkModal">
-    <div class="modal-content">
-        <h3 id="modalTitle"></h3>
-        <input type="text" id="driveLink" placeholder="الصق رابط الملف هنا أو امسح QR">
-        <div class="modal-buttons">
-            <button class="save" onclick="saveLink()">💾 حفظ</button>
-            <button class="scan" onclick="startQR()">📷 QR</button>
-            <button class="close" onclick="closeModal()">✖ إغلاق</button>
-        </div>
-        <div id="qr-reader"></div>
-        <div id="message"></div>
-    </div>
-</div>
-
-<!-- نافذة اتصل بنا -->
-<div class="modal" id="contactModal">
-    <div class="modal-content">
-        <h3>📨 اتصل بنا</h3>
-        <input type="email" id="contactEmail" placeholder="بريدك الإلكتروني" required>
-        <input type="tel" id="contactPhone" placeholder="رقم الهاتف (اختياري)">
-        <textarea id="contactMessage" placeholder="اكتب مضمون رسالتك هنا..." rows="5"></textarea>
-        <div class="modal-buttons">
-            <button class="save" onclick="sendContactMessage()">📤 إرسال</button>
-            <button class="close" onclick="closeContactModal()">✖ إغلاق</button>
+            <button onclick="confirmLogin()">تسجيل الدخول</button>
         </div>
     </div>
-</div>
 
-<!-- نافذة الغياب -->
-<div id="absentModal" class="modal">
-    <div class="modal-content">
-        <h3>قائمة الغياب</h3>
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-            <input type="text" id="teacherName" placeholder="اسم الأستاذ" style="flex:1;">
-            <input type="text" id="subjectName" placeholder="المادة" style="flex:1;">
-        </div>
-        <div style="display: flex; gap: 6px; margin-bottom: 6px; align-items: center;">
-            <input id="absentSearch" type="text" placeholder="🔍 البحث بالاسم" style="flex:1; height:32px; font-size:0.85rem; padding:4px 8px;">
-            <select id="classeFilter" style="height:32px; font-size:0.85rem; padding:4px 8px;"></select>
-        </div>
-        <div class="table-container" style="max-height: 300px; overflow-y:auto; margin-bottom:10px;">
-            <table id="absentTable">
-                <thead>
-                    <tr>
-                        <th>اللقب والإسم</th>
-                        <th>القسم</th>
-                        <th>تحديد</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:5px;">
-            <button onclick="reloadStudents()">🔄 تحديث</button>
-            <button onclick="sendSelectedStudents()">📤 إرسال</button>
-            <button onclick="closeAbsentModal()">❌ إغلاق</button>
-        </div>
-        <div id="loadingText" style="text-align:center; display:none;">يرجى الإنتضار جارٍ التحميل...</div>
-    </div>
+    <!-- مساحة العرض -->
+    <div id="mainContent"></div>
+
 </div>
 
 <footer class="app-footer">
-    <div class="footer-marquee">
-        Myschoolmanager | 2010 - 2026 ©  – برمجة وتصميم لطرش عبدالقادر aabdousoft@gmail.com  | Algeria, Medea 26000
-    </div>
+    Myschoolmanager | 2010 - 2026 ©  – برمجة وتصميم لطرش عبدالقادر | Algeria, Medea
 </footer>
 
 <script src="app.js"></script>
