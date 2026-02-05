@@ -40,21 +40,52 @@ userTypeSelect.onchange = () => {
 
 /* تحميل الموظفين */
 function loadEmployees() {
-    fetch("Employes.txt")
-        .then(r => r.text())
-        .then(t => {
+
+    const EMPLOYES_URL =
+        "https://raw.githubusercontent.com/USER/REPO/main/Employes.txt";
+
+    fetch(EMPLOYES_URL)
+        .then(res => {
+            if (!res.ok) throw new Error("تعذر تحميل ملف الموظفين");
+            return res.text();
+        })
+        .then(text => {
+
             loginTableBody.innerHTML = "";
-            t.trim().split("\n").forEach(l => {
-                const [name,year] = l.split(";");
+            selectedUser = null;
+
+            text
+              .split("\n")
+              .map(l => l.trim())
+              .filter(l => l && l.includes(";"))
+              .forEach(line => {
+
+                const parts = line.split(";");
+
+                if (parts.length < 2) return;
+
+                const name = parts[0].trim();
+                const year = parts[1].trim();
+
                 const tr = document.createElement("tr");
-                tr.innerHTML = `<td>${name}</td><td>—</td>`;
+                tr.innerHTML = `
+                    <td>${name}</td>
+                    <td>—</td>
+                `;
+
                 tr.onclick = () => {
                     selectedUser = { name, year };
-                    [...loginTableBody.children].forEach(r=>r.classList.remove("selected"));
+                    [...loginTableBody.children]
+                        .forEach(r => r.classList.remove("selected"));
                     tr.classList.add("selected");
                 };
+
                 loginTableBody.appendChild(tr);
             });
+        })
+        .catch(err => {
+            alert("❌ خطأ في تحميل بيانات الموظفين");
+            console.error(err);
         });
 }
 
@@ -80,3 +111,4 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
