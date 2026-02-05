@@ -1,280 +1,157 @@
-/* =======================
-   المتغيرات العامة
-======================= */
-const modal = document.getElementById("linkModal");
-const modalTitle = document.getElementById("modalTitle");
-const input = document.getElementById("driveLink");
-const viewer = document.getElementById("viewerContainer");
-const viewerToolbar = document.getElementById("viewerToolbar");
+// عناصر DOM
+const institutionSelect = document.getElementById("institutionSelect");
+const userTypeSelect = document.getElementById("userTypeSelect");
+const loginModal = document.getElementById("loginModal");
+const menuBtn = document.getElementById("menuBtn");
+const dropdownMenu = document.getElementById("dropdownMenu");
 const selectedTitle = document.getElementById("selectedTitle");
-const subTitle = document.getElementById("subTitle");
-const messageBox = document.getElementById("message");
-const PORTAL_NAME = "بوابة الأساتذة والموظفين";
+const welcomeText = document.getElementById("welcomeText");
 
-let currentKey = "";
-let qrScanner = null;
+// بيانات المؤسسة والمستخدم
+let CURRENT_INSTITUTION = null;
+let CURRENT_USER_TYPE = null;
 
-// روابط Google Apps Script
-const studentsWebAppUrl = "https://script.google.com/macros/s/AKfycbx5d5cS3Kr-sQZS-iMd8LtArz-Q2nbkZxqZn-Bl6xpMf_RZSNsI2RHKoaHPQk5KEYW_5w/exec";
-const appendWebAppUrl = studentsWebAppUrl;
+// نموذج بيانات المؤسسات (يمكن جلبها من API لاحقًا)
+const institutions = [
+    "المؤسسة الأولى",
+    "المؤسسة الثانية",
+    "المؤسسة الثالثة"
+];
 
-let allStudents = [];
-let visibleStudents = [];
+// عند تحميل الصفحة، ملء قائمة المؤسسات
+window.addEventListener("DOMContentLoaded", () => {
+    institutions.forEach(inst => {
+        const opt = document.createElement("option");
+        opt.value = inst;
+        opt.textContent = inst;
+        institutionSelect.appendChild(opt);
+    });
+});
 
-/* =======================
-   القائمة
-======================= */
-function toggleMenu() {
-    const menu = document.getElementById("dropdownMenu");
-    menu.style.display = (menu.style.display === "block") ? "none" : "block";
-}
+// دالة تسجيل الدخول
+function confirmLogin() {
+    const inst = institutionSelect.value;
+    const userType = userTypeSelect.value;
 
-function handleItemClick(name) {
-    toggleMenu();
-    selectedTitle.textContent = name;
-    subTitle.textContent = name;
-    currentKey = "drive_" + name;
-
-    const savedLink = localStorage.getItem(currentKey);
-    if (savedLink) loadFile(savedLink);
-    else openModal(name);
-}
-
-/* =======================
-   نافذة الرابط
-======================= */
-function openModal(title) {
-    modalTitle.textContent = "إدخال رابط: " + title;
-    input.value = "";
-    messageBox.textContent = "";
-    document.getElementById("qr-reader").innerHTML = "";
-    modal.style.display = "flex";
-}
-
-function closeModal() {
-    stopQR();
-    modal.style.display = "none";
-}
-
-function saveLink() {
-    const link = input.value.trim();
-    if (!link) {
-        messageBox.textContent = "يرجى إدخال رابط صحيح";
+    if(!inst || !userType){
+        alert("الرجاء اختيار المؤسسة ونوع المستخدم");
         return;
     }
-    localStorage.setItem(currentKey, link);
-    closeModal();
-    loadFile(link);
+
+    CURRENT_INSTITUTION = inst;
+    CURRENT_USER_TYPE = userType;
+
+    // تحديث العنوان والعبارات حسب نوع المستخدم
+    updatePortalTexts(userType, inst);
+
+    // تفعيل زر القائمة
+    menuBtn.disabled = false;
+
+    // إخفاء نافذة الدخول
+    loginModal.style.display = "none";
+
+    // ملء عناصر القائمة حسب نوع المستخدم
+    fillMenu(userType);
 }
 
-/* =======================
-   عرض الملفات
-======================= */
-function toPreviewLink(link) {
-    const match = link.match(/\/d\/([^/]+)/);
-    return match ? `https://drive.google.com/file/d/${match[1]}/preview` : link;
-}
+// دالة تحديث النصوص
+function updatePortalTexts(userType, institution){
+    let title = "🌐 فضاء الخدمات";
+    let welcome = "";
 
-function loadFile(link) {
-    viewer.innerHTML = "";
-    viewerToolbar.style.display = "flex";
-    const iframe = document.createElement("iframe");
-    iframe.src = toPreviewLink(link);
-    viewer.appendChild(iframe);
-}
-
-function editCurrentLink() {
-    openModal("تعديل الرابط");
-    input.value = localStorage.getItem(currentKey) || "";
-}
-
-function downloadCurrentFile() {
-    const link = localStorage.getItem(currentKey);
-    if (link) window.open(link, "_blank");
-}
-
-function deleteCurrentLink() {
-    if (confirm("هل تريد حذف هذا الرابط؟")) {
-        localStorage.removeItem(currentKey);
-        viewer.innerHTML = "";
-        viewerToolbar.style.display = "none";
+    switch(userType){
+        case "teacher":
+            title = "🌐 فضاء خدمات الأساتذة";
+            welcome = "يُمكن للأساتذة الاطلاع على الوثائق والقوائم والملفات المختلفة بسهولة وسرعة.";
+            break;
+        case "parent":
+            title = "🌐 فضاء أولياء الأمور";
+            welcome = "يمكن لأولياء الأمور متابعة الغيابات والرزنامة والوثائق الخاصة بأبنائهم.";
+            break;
+        case "consultation":
+            title = "🌐 فضاء الإستشارة";
+            welcome = "يمكن لموظفي الإستشارة الاطلاع على قوائم الغيابات والخدمات المختلفة.";
+            break;
+        case "secretariat":
+            title = "🌐 فضاء الأمانة";
+            welcome = "يمكن للأمانة الاطلاع على القوائم الأساسية والتواصل الإداري.";
+            break;
+        case "counselor":
+            title = "🌐 فضاء مستشار التوجيه المدرسي";
+            welcome = "يمكن للمستشار الاطلاع على المعلومات الأساسية للطلاب والخدمات.";
+            break;
+        case "clubs":
+            title = "🌐 فضاء النوادي المدرسية";
+            welcome = "يمكن إدارة النوادي والأنشطة المدرسية بسهولة.";
+            break;
     }
+
+    selectedTitle.textContent = title;
+    welcomeText.textContent = welcome;
 }
 
-/* =======================
-   QR
-======================= */
-function startQR() {
-    const qrDiv = document.getElementById("qr-reader");
-    qrDiv.innerHTML = "";
-    qrScanner = new Html5Qrcode("qr-reader");
-    qrScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        text => {
-            input.value = text;
-            localStorage.setItem(currentKey, text);
-            stopQR();
-            closeModal();
-            loadFile(text);
-        }
-    );
-}
+// دالة ملء القائمة حسب نوع المستخدم
+function fillMenu(userType){
+    dropdownMenu.innerHTML = ""; // تنظيف القائمة
 
-function stopQR() {
-    if (qrScanner) {
-        qrScanner.stop().catch(() => {});
-        qrScanner = null;
-    }
-}
+    const menuItems = {
+        teacher: [
+            "📋 القوائم الإسمية للتلاميذ",
+            "📊 قوائم صب النقاط للأستاذ",
+            "📅 قائمة التلاميذ الغائبين قبل اليوم",
+            "📤 إرسال أسماء التلاميذ الغائبين حاليًا",
+            "🧑‍🏫 جدول خدمات الأستاذ",
+            "🕒 جدول التوقيت الأسبوعي للتلاميذ",
+            "📁 استمارات ووثائق مختلفة",
+            "📧 تواصل إداري"
+        ],
+        parent: [
+            "📋 سجل الغيابات والمراسلات",
+            "👨‍👩‍👧 جدول استقبال الأولياء",
+            "📝 رزنامة الفروض والاختبارات",
+            "🕒 جدول التوقيت الأسبوعي",
+            "📁 استمارات ووثائق مختلفة",
+            "📧 تواصل إداري"
+        ],
+        consultation: [
+            "📋 القوائم الإسمية للتلاميذ",
+            "📊 قائمة الأساتذة الغائبين",
+            "📅 قائمة التلاميذ الغائبين قبل اليوم",
+            "📤 قائمة التلاميذ الغائبين لنهار اليوم",
+            "🧑‍🏫 جدول خدمات مشرفي التربية",
+            "🕒 جدول التوقيت الأسبوعي للتلاميذ",
+            "📁 استمارات ووثائق مختلفة",
+            "📧 تواصل إداري"
+        ],
+        secretariat: [
+            "📋 القوائم الإسمية للتلاميذ",
+            "📧 تواصل إداري"
+        ],
+        counselor: [
+            "📋 القوائم الإسمية للتلاميذ",
+            "📧 تواصل إداري"
+        ],
+        clubs: [
+            "📋 القوائم الإسمية للتلاميذ",
+            "📧 تواصل إداري"
+        ]
+    };
 
-/* ===== مسح الكل ===== */
-function clearAllLinks() {
-    toggleMenu();
-    if (confirm("⚠️ هل تريد مسح جميع الروابط المحفوظة؟")) {
-        localStorage.clear();
-        location.reload();
-    }
-}
-
-/* =======================
-   نافذة الغياب
-======================= */
-function handleAbsentClick() {
-    document.getElementById("absentModal").style.display = "flex";
-
-    document.getElementById("teacherName").value = localStorage.getItem("teacherName") || "";
-    document.getElementById("subjectName").value = localStorage.getItem("subjectName") || "";
-
-    loadStudents();
-}
-
-function closeAbsentModal() {
-    document.getElementById("absentModal").style.display = "none";
-}
-
-function showLoading() { document.getElementById("loadingText").style.display = "block"; }
-function hideLoading() { document.getElementById("loadingText").style.display = "none"; }
-
-/* =======================
-   تحميل التلاميذ
-======================= */
-function loadStudents() {
-    showLoading();
-    fetch(studentsWebAppUrl + "?action=getStudents")
-        .then(res => res.json())
-        .then(data => {
-            if (data.status !== "success") throw new Error(data.message || "خطأ غير معروف");
-            allStudents = data.students || [];
-            visibleStudents = [...allStudents];
-            fillClasseFilter(allStudents);
-            fillAbsentTable(visibleStudents);
-        })
-        .catch(err => { alert("فشل تحميل القائمة"); console.error(err); })
-        .finally(hideLoading);
-}
-
-/* تعبئة الأقسام */
-function fillClasseFilter(students) {
-    const sel = document.getElementById("classeFilter");
-    sel.innerHTML = `<option value="">كل الأقسام</option>`;
-    [...new Set(students.map(s => s.classe))].forEach(c => {
-        const o = document.createElement("option");
-        o.value = c;
-        o.textContent = c;
-        sel.appendChild(o);
+    const items = menuItems[userType] || [];
+    items.forEach(text => {
+        const div = document.createElement("div");
+        div.textContent = text;
+        div.onclick = () => handleItemClick(text);
+        dropdownMenu.appendChild(div);
     });
 }
 
-/* ملء جدول الغياب */
-function fillAbsentTable(students) {
-    const tbody = document.querySelector("#absentTable tbody");
-    tbody.innerHTML = "";
-    students.forEach((s,i)=>{
-        const row = document.createElement("tr");
-        row.innerHTML = `<td>${s.name}</td><td>${s.classe}</td><td><input type="checkbox" data-id="${i}"></td>`;
-        tbody.appendChild(row);
-    });
+// تفعيل القائمة المنسدلة
+function toggleMenu(){
+    dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
 }
 
-/* البحث في قائمة التلاميذ */
-document.getElementById("absentSearch").addEventListener("input", function() {
-    const q = this.value.toLowerCase();
-    visibleStudents = allStudents.filter(s => s.name.toLowerCase().includes(q) || s.classe.toLowerCase().includes(q));
-    fillAbsentTable(visibleStudents);
-});
-
-/* فلترة القسم */
-document.getElementById("classeFilter").addEventListener("change", function() {
-    if(this.value==="") visibleStudents=[...allStudents];
-    else visibleStudents = allStudents.filter(s=>s.classe===this.value);
-    fillAbsentTable(visibleStudents);
-});
-
-function reloadStudents() { loadStudents(); }
-
-/* =======================
-   إرسال الغائبين
-======================= */
-function sendSelectedStudents() {
-    const teacher = document.getElementById("teacherName").value.trim();
-    const subject = document.getElementById("subjectName").value.trim();
-    const classe = document.getElementById("classeFilter").value || "";
-    const now = new Date();
-    const hour = now.getHours().toString().padStart(2,"0")+":"+now.getMinutes().toString().padStart(2,"0");
-    const dateStr = now.getDate().toString().padStart(2,"0")+"."+ (now.getMonth()+1).toString().padStart(2,"0")+"."+now.getFullYear();
-
-    const key = `lastSent_${teacher}_${subject}_${classe}`;
-    const lastHour = localStorage.getItem(key);
-    if(lastHour===hour && !confirm("⚠️ لقد تم إرسال القائمة هذا الساعة بالفعل. هل تريد الإرسال مرة أخرى؟")) return;
-
-    const checked = document.querySelectorAll("#absentTable tbody input[type=checkbox]:checked");
-    const selected = Array.from(checked).map(cb => visibleStudents[parseInt(cb.dataset.id)]);
-    if(selected.length===0){ alert("لم يتم تحديد أي تلميذ"); return; }
-
-    let textList = `${dateStr}\n========================================\n`;
-    textList += `الأستاذ: ${teacher}  مادة ${subject}  ${hour}` + (classe? "  / "+classe:"") + "\n\n";
-    textList += selected.map(s=>`${s.name} ; ${s.classe}`).join("\n");
-
-    fetch(appendWebAppUrl + "?action=addAbsent&list=" + encodeURIComponent(textList))
-        .then(res=>res.json())
-        .then(data=>{
-            if(data.status==="success"){
-                alert("✅ تم إرسال القائمة بنجاح");
-                localStorage.setItem(key,hour);
-                localStorage.setItem("teacherName",teacher);
-                localStorage.setItem("subjectName",subject);
-            } else alert("❌ خطأ أثناء الإرسال: "+(data.message||""));
-            closeAbsentModal();
-        })
-        .catch(err=>{ alert("❌ فشل الاتصال بالسيرفر"); console.error(err); });
+// عرض العنصر عند الضغط
+function handleItemClick(name){
+    alert("تم اختيار: " + name);
 }
-
-/* =======================
-   اتصل بنا
-======================= */
-function openContactModal() {
-    document.getElementById("contactModal").style.display="flex";
-    contactEmail.value=""; contactPhone.value=""; contactMessage.value="";
-}
-function closeContactModal(){ document.getElementById("contactModal").style.display="none"; }
-function sendContactMessage() {
-    const email = contactEmail.value.trim();
-    const phone = contactPhone.value.trim();
-    const message = contactMessage.value.trim();
-    if(!email||!message){ alert("يرجى إدخال البريد الإلكتروني ومضمون الرسالة"); return; }
-    const subject = `رسالة من ${PORTAL_NAME}`;
-    const body = `البريد الإلكتروني: ${email}\nرقم الهاتف: ${phone||"غير مدخل"}\n\nمضمون الرسالة:\n${message}`;
-    const gmailLink = "https://mail.google.com/mail/?view=cm&fs=1&to=myschoolmanager11@gmail.com&su="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
-    window.open(gmailLink,"_blank");
-    setTimeout(closeContactModal,500);
-}
-
-// عند تحميل الصفحة
-window.addEventListener("DOMContentLoaded", () => {
-    // تحقق من وجود مؤسسة محفوظة
-    const inst = localStorage.getItem("selectedInstitution");
-    if(!inst){
-        document.getElementById("institutionModal").style.display = "flex";
-    }
-});
