@@ -60,40 +60,49 @@ function loadEmployees() {
     loginTableBody.innerHTML = "";
     selectedUser = null;
 
-    // ✅ هنا بالضبط يوضع الكود
-    const data = CURRENT_INSTITUTION?.files?.employes?.content;
-
-    if (!data) {
-        alert(`⚠️ ملف الموظفين غير موجود أو فارغ في مؤسسة "${CURRENT_INSTITUTION?.name}"`);
+    const file = CURRENT_INSTITUTION?.files?.employes;
+    if (!file) {
+        alert("❌ ملف الموظفين غير موجود لهذه المؤسسة");
         return;
     }
 
-    data.split("\n")
-        .map(l => l.trim())
-        .filter(l => l && l.includes(";"))
-        .forEach(line => {
+    const url =
+      DRIVE_API_URL +
+      "?action=employees&fileId=" +
+      file.id;
 
-            const parts = line.split(";");
+    fetch(url)
+      .then(r => r.text())
+      .then(text => {
 
-            const name = parts[0].trim();
-            const pass = parts[1].trim();
+        text.split("\n")
+          .map(l => l.trim())
+          .filter(l => l && l.includes(";"))
+          .forEach(line => {
+
+            const [name, pass] = line.split(";");
 
             const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${name}</td><td>—</td>`;
+            tr.innerHTML = `<td>${name.trim()}</td><td>—</td>`;
 
             tr.onclick = () => {
-                selectedUser = { name, pass };
-                [...loginTableBody.children]
-                    .forEach(r => r.classList.remove("selected"));
-                tr.classList.add("selected");
+              selectedUser = {
+                name: name.trim(),
+                pass: pass.trim()
+              };
+              [...loginTableBody.children]
+                .forEach(r => r.classList.remove("selected"));
+              tr.classList.add("selected");
             };
 
             loginTableBody.appendChild(tr);
-        });
+          });
 
-    if (loginTableBody.children.length === 0) {
-        alert("⚠️ الملف موجود لكن لا يحتوي على بيانات صالحة");
-    }
+        if (loginTableBody.children.length === 0) {
+          alert("⚠️ ملف الموظفين فارغ");
+        }
+      })
+      .catch(() => alert("❌ فشل تحميل ملف الموظفين"));
 }
 
 
@@ -125,6 +134,7 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
 
 
 
