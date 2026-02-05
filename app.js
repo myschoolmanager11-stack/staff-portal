@@ -57,50 +57,43 @@ userTypeSelect.onchange = () => {
 /* تحميل الموظفين حسب المؤسسة */
 function loadEmployees() {
 
-    // تحقق من وجود المؤسسة وملف الموظفين
-    if (!CURRENT_INSTITUTION) {
-        alert("❌ لم يتم اختيار أي مؤسسة");
-        return;
-    }
-
-    const employesFile = CURRENT_INSTITUTION.files?.employes;
-
-    if (!employesFile || !employesFile.content) {
-        alert(`⚠️ ملف الموظفين غير موجود أو فارغ في مؤسسة "${CURRENT_INSTITUTION.name}"`);
-        loginTableBody.innerHTML = "";
-        selectedUser = null;
-        return;
-    }
-
-    // استخدم المحتوى مباشرة
-    const text = employesFile.content;
-
     loginTableBody.innerHTML = "";
     selectedUser = null;
 
-    const lines = text.split("\n").map(l => l.trim()).filter(l => l && l.includes(";"));
+    // ✅ هنا بالضبط يوضع الكود
+    const data = CURRENT_INSTITUTION?.files?.employes?.content;
 
-    if (lines.length === 0) {
-        alert(`⚠️ لا توجد بيانات موظفين صالحة في ملف "${employesFile.name}"`);
+    if (!data) {
+        alert(`⚠️ ملف الموظفين غير موجود أو فارغ في مؤسسة "${CURRENT_INSTITUTION?.name}"`);
         return;
     }
 
-    lines.forEach(line => {
-        const parts = line.split(";");
-        const name = parts[0].trim();
-        const pass = parts[1].trim();
+    data.split("\n")
+        .map(l => l.trim())
+        .filter(l => l && l.includes(";"))
+        .forEach(line => {
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${name}</td><td>—</td>`; // كلمة المرور مخفية
+            const parts = line.split(";");
 
-        tr.onclick = () => {
-            selectedUser = { name, pass };
-            [...loginTableBody.children].forEach(r => r.classList.remove("selected"));
-            tr.classList.add("selected");
-        };
+            const name = parts[0].trim();
+            const pass = parts[1].trim();
 
-        loginTableBody.appendChild(tr);
-    });
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${name}</td><td>—</td>`;
+
+            tr.onclick = () => {
+                selectedUser = { name, pass };
+                [...loginTableBody.children]
+                    .forEach(r => r.classList.remove("selected"));
+                tr.classList.add("selected");
+            };
+
+            loginTableBody.appendChild(tr);
+        });
+
+    if (loginTableBody.children.length === 0) {
+        alert("⚠️ الملف موجود لكن لا يحتوي على بيانات صالحة");
+    }
 }
 
 
@@ -132,5 +125,6 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
 
 
