@@ -71,31 +71,33 @@ function loadEmployees() {
       "?action=employees&fileId=" +
       file.id;
 
-    fetch(url)
+  fetch(url)
   .then(r => r.text())
   .then(text => {
 
     loginTableBody.innerHTML = "";
     selectedUser = null;
 
-    text
-      .replace(/\uFEFF/g, "")
+    text = text
+      .replace(/\uFEFF/g, "") // إزالة BOM
       .replace(/\r/g, "")
+      .replace(/؛/g, ";");    // 🔥 تحويل الفاصلة العربية
+
+    text
       .split("\n")
       .map(l => l.trim())
       .filter(l => l.length > 0 && l.includes(";"))
       .forEach(line => {
 
-        const [name, pass] = line.split(";");
+        const parts = line.split(";");
+        const name = parts[0].trim();
+        const pass = parts[1].trim();
 
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${name.trim()}</td><td>—</td>`;
+        tr.innerHTML = `<td>${name}</td><td>—</td>`;
 
         tr.onclick = () => {
-          selectedUser = {
-            name: name.trim(),
-            pass: pass.trim()
-          };
+          selectedUser = { name, pass };
           [...loginTableBody.children]
             .forEach(r => r.classList.remove("selected"));
           tr.classList.add("selected");
@@ -109,7 +111,6 @@ function loadEmployees() {
     }
   })
   .catch(() => alert("❌ فشل تحميل ملف الموظفين"));
-
 
 /* تسجيل الدخول */
 proceedBtn.onclick = () => {
@@ -139,6 +140,7 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
 
 
 
