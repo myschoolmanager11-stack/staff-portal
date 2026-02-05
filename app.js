@@ -18,9 +18,14 @@ let CURRENT_USER_TYPE = null;
 let loginData = [];
 let selectedUser = null;
 
-// 🔹 تحميل المؤسسات من سكريبت Drive
+// 🔹 رابط سكريبت Drive
 const DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
+
+// 🔹 تحميل المؤسسات عند فتح الصفحة
 window.addEventListener("DOMContentLoaded", () => {
+    loginModal.style.display = "flex";
+    loginTableModal.style.display = "none";
+
     fetch(DRIVE_API_URL)
         .then(res => res.json())
         .then(data => {
@@ -32,35 +37,27 @@ window.addEventListener("DOMContentLoaded", () => {
                 institutionSelect.appendChild(opt);
             });
         })
-        .catch(err => {
-            console.error("خطأ في تحميل المؤسسات:", err);
-        });
+        .catch(err => console.error("خطأ في تحميل المؤسسات:", err));
 });
 
-// 🔹 تفعيل زر متابعة فقط عند اختيار مؤسسة ونوع مستخدم
+// 🔹 تفعيل زر متابعة
 function checkProceedEnable() {
     proceedBtn.disabled = !(institutionSelect.value && userTypeSelect.value);
 }
 institutionSelect.addEventListener("change", checkProceedEnable);
 userTypeSelect.addEventListener("change", checkProceedEnable);
 
-// 🔹 عند الضغط على متابعة
+// 🔹 متابعة
 proceedBtn.addEventListener("click", () => {
     CURRENT_INSTITUTION = institutionSelect.value;
     CURRENT_USER_TYPE = userTypeSelect.value;
-
     if (!CURRENT_INSTITUTION || !CURRENT_USER_TYPE) return;
 
-    loginModal.style.display = "none"; // اغلاق مودال اختيار المؤسسة
+    loginModal.style.display = "none";
 
-    if (["teacher","consultation"].includes(CURRENT_USER_TYPE)) {
-        loadEmployees();
-    } else if (CURRENT_USER_TYPE === "parent") {
-        loadStudents();
-    } else {
-        menuBtn.disabled = false;
-        loadDropdownMenuForUserType(CURRENT_USER_TYPE);
-    }
+    if (["teacher","consultation"].includes(CURRENT_USER_TYPE)) loadEmployees();
+    else if (CURRENT_USER_TYPE === "parent") loadStudents();
+    else { menuBtn.disabled = false; loadDropdownMenuForUserType(CURRENT_USER_TYPE); }
 });
 
 // 🔹 تحميل الموظفين
@@ -70,7 +67,6 @@ function loadEmployees() {
             const [name,dob,profession,subject] = line.split(";");
             return {name,dob,profession,subject};
         }).filter(u => ["أستاذ التعليم المتوسط","أستاذ التعليم الثانوي"].includes(u.profession));
-
         showLoginTable(loginData, "subject");
     });
 }
@@ -86,12 +82,11 @@ function loadStudents() {
     });
 }
 
-// 🔹 عرض الجدول مع أيقونات
-function showLoginTable(data, columnField) {
+// 🔹 عرض الجدول
+function showLoginTable(data,columnField) {
     loginTableBody.innerHTML = "";
     data.forEach(d => {
         const row = document.createElement("tr");
-
         let icon = "👤";
         if (CURRENT_USER_TYPE === "teacher") icon = "🧑‍🏫";
         else if (CURRENT_USER_TYPE === "consultation") icon = "🛡️";
@@ -124,9 +119,7 @@ loginConfirmBtn.addEventListener("click", () => {
         menuBtn.disabled = false;
         loadDropdownMenuForUserType(CURRENT_USER_TYPE);
         selectedTitle.textContent = "🌐 فضاء " + CURRENT_USER_TYPE;
-    } else {
-        alert("❌ كلمة المرور غير صحيحة");
-    }
+    } else alert("❌ كلمة المرور غير صحيحة");
 });
 
 // 🔹 ملء القائمة مع أيقونات
