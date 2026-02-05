@@ -269,3 +269,12 @@ function sendContactMessage() {
     window.open(gmailLink,"_blank");
     setTimeout(closeContactModal,500);
 }
+
+// عند تحميل الصفحة
+window.addEventListener("DOMContentLoaded", () => {
+    // تحقق من وجود مؤسسة محفوظة
+    const inst = localStorage.getItem("selectedInstitution");
+    if(!inst){
+        document.getElementById("institutionModal").style.display = "flex";
+    }
+});
