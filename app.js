@@ -72,38 +72,43 @@ function loadEmployees() {
       file.id;
 
     fetch(url)
-      .then(r => r.text())
-      .then(text => {
+  .then(r => r.text())
+  .then(text => {
 
-        text.split("\n")
-          .map(l => l.trim())
-          .filter(l => l && l.includes(";"))
-          .forEach(line => {
+    loginTableBody.innerHTML = "";
+    selectedUser = null;
 
-            const [name, pass] = line.split(";");
+    text
+      .replace(/\uFEFF/g, "")
+      .replace(/\r/g, "")
+      .split("\n")
+      .map(l => l.trim())
+      .filter(l => l.length > 0 && l.includes(";"))
+      .forEach(line => {
 
-            const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${name.trim()}</td><td>—</td>`;
+        const [name, pass] = line.split(";");
 
-            tr.onclick = () => {
-              selectedUser = {
-                name: name.trim(),
-                pass: pass.trim()
-              };
-              [...loginTableBody.children]
-                .forEach(r => r.classList.remove("selected"));
-              tr.classList.add("selected");
-            };
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${name.trim()}</td><td>—</td>`;
 
-            loginTableBody.appendChild(tr);
-          });
+        tr.onclick = () => {
+          selectedUser = {
+            name: name.trim(),
+            pass: pass.trim()
+          };
+          [...loginTableBody.children]
+            .forEach(r => r.classList.remove("selected"));
+          tr.classList.add("selected");
+        };
 
-        if (loginTableBody.children.length === 0) {
-          alert("⚠️ ملف الموظفين فارغ");
-        }
-      })
-      .catch(() => alert("❌ فشل تحميل ملف الموظفين"));
-}
+        loginTableBody.appendChild(tr);
+      });
+
+    if (loginTableBody.children.length === 0) {
+      alert("⚠️ ملف الموظفين فارغ أو غير صالح");
+    }
+  })
+  .catch(() => alert("❌ فشل تحميل ملف الموظفين"));
 
 
 /* تسجيل الدخول */
@@ -134,6 +139,7 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
 
 
 
