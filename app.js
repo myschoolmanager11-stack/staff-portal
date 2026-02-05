@@ -53,7 +53,10 @@ institutionSelect.onchange = () => {
 
     CURRENT_INSTITUTION =
         INSTITUTIONS.find(i => i.folderId === folderId) || null;
-
+ console.log("المؤسسة الحالية:", CURRENT_INSTITUTION); // ✅ هذا يفيدنا
+    if (CURRENT_INSTITUTION) {
+        console.log("رابط ملف الموظفين:", CURRENT_INSTITUTION.files.employes); // ✅ تحقق الرابط
+    }
     updateUI();
 
     // تحميل الموظفين فقط إذا كان النوع أستاذ أو إشراف
@@ -156,5 +159,6 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
 
 
