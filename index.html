@@ -53,6 +53,65 @@
         </div>
     </div>
 
+    <!-- ===== اختيار المؤسسة + المستخدم ===== -->
+<div class="modal" id="loginSelectModal">
+    <div class="modal-content login-content">
+        <h3>🏫 اختر المؤسسة ونوع المستخدم</h3>
+
+        <!-- اختيار المؤسسة -->
+        <div class="login-field">
+            <label for="institutionSelect">المؤسسة</label>
+            <select id="institutionSelect">
+                <option value="">اختر المؤسسة</option>
+                <!-- سيتم ملؤها ديناميكياً -->
+            </select>
+        </div>
+
+        <!-- اختيار نوع المستخدم -->
+        <div class="login-field">
+            <label for="userTypeSelect">تسجيل الدخول كـ</label>
+            <select id="userTypeSelect">
+                <option value="">اختر نوع المستخدم</option>
+                <option value="teacher">أستاذ</option>
+                <option value="consultation">إستشارة</option>
+                <option value="admin">أمانة</option>
+                <option value="parent">ولي الأمر</option>
+                <option value="guidance">مستشار التوجيه المدرسي</option>
+                <option value="clubs">النوادي المدرسية</option>
+            </select>
+        </div>
+
+        <button id="proceedBtn" class="login-btn" disabled>➡ تسجيل الدخول</button>
+    </div>
+</div>
+
+<!-- ===== مودال تسجيل الدخول بالجدول ===== -->
+<div class="modal" id="loginTableModal">
+    <div class="modal-content login-content">
+        <h3>📝 تسجيل الدخول</h3>
+
+        <!-- الجدول -->
+        <div class="table-container" style="max-height: 200px; overflow-y: auto;">
+            <table id="loginTable">
+                <thead>
+                    <tr>
+                        <th>الإسم واللقب</th>
+                        <th>المادة / القسم</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- حقل كلمة المرور -->
+        <div class="login-field">
+            <input type="password" id="loginPassword" placeholder="كلمة المرور">
+        </div>
+
+        <button id="loginConfirmBtn" class="login-btn">🔑 تسجيل الدخول</button>
+    </div>
+</div>
+
     <!-- مساحة المحتوى الرئيسية -->
     <div id="mainContent"></div>
 </div>
