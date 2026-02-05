@@ -1,15 +1,30 @@
 /* =======================
-   Reset & Base
+   توحيد الخطوط في كامل التطبيق
 ======================= */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+body,
+button,
+input,
+select,
+textarea,
+.dropdown-menu,
+.modal-content,
+table,
+th,
+td {
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    font-size: 8.5pt;
+}
+
+h2,
+h3 {
+    font-size: 10pt;
+    font-weight: bold;
 }
 
 body {
-    background-color: #f4f6f8;
+    margin: 0;
+    background: #f2f4ff;
+    direction: rtl;
     color: #333;
     line-height: 1.4;
 }
@@ -28,12 +43,12 @@ body {
 }
 
 .app-title h2 {
-    font-size: 1.6rem;
+    font-size: 10pt;
     margin-bottom: 4px;
 }
 
 .app-title .welcome-text {
-    font-size: 0.9rem;
+    font-size: 8pt;
     color: #cfd8dc;
 }
 
@@ -44,7 +59,7 @@ button {
     cursor: pointer;
     border: none;
     border-radius: 5px;
-    font-size: 0.9rem;
+    font-size: 8.5pt;
     transition: all 0.2s ease;
 }
 
@@ -56,7 +71,6 @@ button:hover {
     background-color: #ff9800;
     color: #fff;
     padding: 6px 12px;
-    font-size: 1.1rem;
 }
 
 .menu-btn:disabled {
@@ -81,8 +95,9 @@ button:hover {
 }
 
 .dropdown-menu div {
-    padding: 10px 12px;
+    padding: 8px 10px;
     cursor: pointer;
+    font-size: 8.5pt;
 }
 
 .dropdown-menu div:hover {
@@ -128,15 +143,15 @@ button:hover {
 
 .modal-content {
     background-color: #fff;
-    padding: 20px 25px;
+    padding: 15px 20px;
     border-radius: 8px;
-    min-width: 320px;
+    min-width: 300px;
     max-width: 400px;
     text-align: center;
 }
 
 .login-content h3 {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     color: #2b3e50;
 }
 
@@ -144,37 +159,39 @@ button:hover {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .login-field label {
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     font-weight: bold;
 }
 
 .login-field select {
     width: 100%;
-    padding: 6px 8px;
+    padding: 5px 6px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    font-size: 8.5pt;
 }
 
 .login-btn {
     width: 100%;
-    padding: 8px 0;
+    padding: 7px 0;
     background-color: #1976d2;
     color: #fff;
-    font-size: 1rem;
     font-weight: bold;
+    font-size: 8.5pt;
+    border-radius: 5px;
 }
 
 /* =======================
    Footer
 ======================= */
 .app-footer {
-    padding: 12px 20px;
+    padding: 10px 15px;
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 8pt;
     color: #555;
     background-color: #eceff1;
     margin-top: 20px;
