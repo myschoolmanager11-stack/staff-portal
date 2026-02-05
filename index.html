@@ -7,13 +7,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <header class="top-bar">
     <div class="app-title">
         <h2 id="selectedTitle">🌐 فضاء الخدمات</h2>
-        <p class="welcome-text" id="welcomeText">
-            مرحبًا بك! الرجاء اختيار المؤسسة وتسجيل الدخول للمتابعة.
-        </p>
+        <p class="welcome-text" id="welcomeText">مرحبًا بك! الرجاء اختيار المؤسسة وتسجيل الدخول للمتابعة.</p>
     </div>
     <div class="right-buttons">
         <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" disabled>☰</button>
@@ -22,8 +19,7 @@
 </header>
 
 <div class="container">
-
-    <!-- مودال اختيار المؤسسة + نوع المستخدم -->
+    <!-- مودال اختيار المؤسسة ونوع المستخدم -->
     <div id="loginModal" class="modal" style="display:flex;">
         <div class="modal-content login-content">
             <h3>🔑 تسجيل الدخول</h3>
@@ -45,15 +41,15 @@
     </div>
 
     <!-- مودال الجدول لتسجيل الدخول -->
-    <div class="modal" id="loginTableModal" style="display:none;">
+    <div class="modal" id="loginTableModal">
         <div class="modal-content login-content">
             <h3>📝 تسجيل الدخول</h3>
-            <div class="table-container" style="max-height:220px; overflow-y:auto;">
+            <div class="table-container" style="max-height: 220px; overflow-y:auto;">
                 <table id="loginTable">
                     <thead>
                         <tr>
                             <th style="width:65%;">الإسم واللقب</th>
-                            <th style="width:35%;">المادة / القسم</th>
+                            <th style="width:35%;">المادة / الصف</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -71,7 +67,7 @@
 
 <footer class="app-footer">
     <div class="footer-marquee">
-        Myschoolmanager | 2010 - 2026 ©  – برمجة وتصميم لطرش عبدالقادر aabdousoft@gmail.com  | Algeria, medea 26000
+        Myschoolmanager | 2010 - 2026 ©  – برمجة وتصميم عبدالقادر aabdousoft@gmail.com | Algeria, Medea 26000
     </div>
 </footer>
 
