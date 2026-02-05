@@ -9,28 +9,35 @@
 <body>
 
 <header class="top-bar">
-    <div class="app-title">
-        <h2 id="selectedTitle">🌐 فضاء الخدمات</h2>
-        <p class="welcome-text" id="welcomeText">مرحبًا بك! الرجاء اختيار المؤسسة وتسجيل الدخول للمتابعة.</p>
-    </div>
     <div class="right-buttons">
         <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" disabled>☰</button>
     </div>
+
+    <div class="app-title">
+        <h2 id="selectedTitle">🌐 فضاء الخدمات</h2>
+        <p class="welcome-text" id="welcomeText">
+            مرحبًا بك! الرجاء اختيار المؤسسة وتسجيل الدخول للمتابعة.
+        </p>
+    </div>
+
     <div class="dropdown-menu" id="dropdownMenu"></div>
 </header>
 
-<div class="container">
+<main class="container">
 
-    <!-- مودال اختيار المؤسسة ونوع المستخدم -->
+    <!-- نافذة تسجيل الدخول -->
     <div id="loginModal" class="modal">
         <div class="modal-content login-content">
+
             <h3>🔑 تسجيل الدخول</h3>
+
             <div class="login-field">
-                <label>🏫 حدد المؤسسة:</label>
+                <label>🏫 حدد المؤسسة</label>
                 <select id="institutionSelect"></select>
             </div>
+
             <div class="login-field">
-                <label>👤 نوع المستخدم:</label>
+                <label>👤 نوع المستخدم</label>
                 <select id="userTypeSelect">
                     <option value="">-- اختر نوع المستخدم --</option>
                     <option value="teacher">الأساتذة</option>
@@ -38,34 +45,36 @@
                     <option value="parent">أولياء الأمور</option>
                 </select>
             </div>
-            <button id="proceedBtn" class="login-btn" disabled>➡ متابعة</button>
-        </div>
-    </div>
 
-    <!-- مودال جدول تسجيل الدخول -->
-    <div class="modal" id="loginTableModal" style="display:none;">
-        <div class="modal-content login-content">
-            <h3>📝 تسجيل الدخول</h3>
-            <div class="table-container" style="max-height:220px; overflow-y:auto;">
-                <table id="loginTable">
-                    <thead>
-                        <tr>
-                            <th style="width:65%;">الإسم واللقب</th>
-                            <th style="width:35%;">المادة / الصف</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+            <!-- جدول المستخدمين -->
+            <div id="usersBlock" style="display:none;">
+                <div class="table-container">
+                    <table id="loginTable">
+                        <thead>
+                            <tr>
+                                <th style="width:70%;">الإسم واللقب</th>
+                                <th style="width:30%;">المادة</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="login-field">
+                    <input type="password" id="loginPassword"
+                           placeholder="كلمة المرور">
+                </div>
             </div>
-            <div class="login-field">
-                <input type="password" id="loginPassword" placeholder="كلمة المرور (سنة الميلاد)">
-            </div>
-            <button id="loginConfirmBtn" class="login-btn">🔑 تسجيل الدخول</button>
+
+            <button id="proceedBtn" class="login-btn" disabled>
+                🔐 تسجيل الدخول
+            </button>
+
         </div>
     </div>
 
     <div id="mainContent"></div>
-</div>
+</main>
 
 <footer class="app-footer">
     <div class="footer-marquee">
