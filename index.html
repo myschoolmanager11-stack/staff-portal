@@ -31,48 +31,46 @@
     <div id="loginModal" class="modal">
         <div class="modal-content login-content">
 
-            <h3>🔑 تسجيل الدخول</h3>
+    <h3>🔑 تسجيل الدخول</h3>
 
-            <div class="login-field">
-                <label>🏫 حدد المؤسسة</label>
-                <select id="institutionSelect">
-                    <option value="">-- اختر المؤسسة --</option>
-                </select>
-            </div>
-
-            <div class="login-field">
-                <label>👤 نوع المستخدم</label>
-                <select id="userTypeSelect">
-                    <option value="">-- اختر نوع المستخدم --</option>
-                    <option value="teacher">الأساتذة</option>
-                    <option value="consultation">الإشراف التربوي</option>
-                    <option value="parent">أولياء الأمر</option>
-                </select>
-            </div>
-
-            <div id="usersBlock" style="display:none;">
-                <div class="table-container">
-                    <table id="loginTable">
-                        <thead>
-                            <tr>
-                                <th>الإسم واللقب</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-
-                <div class="login-field">
-                    <input type="password" id="loginPassword" placeholder="كلمة المرور">
-                </div>
-            </div>
-
-            <button id="proceedBtn" class="login-btn" disabled>
-                🔐 تسجيل الدخول
-            </button>
-
-        </div>
+    <!-- المؤسسة -->
+    <div class="login-field">
+        <label>🏫 حدد المؤسسة التربوية</label>
+        <select id="institutionSelect">
+            <option value="">-- اختر المؤسسة --</option>
+        </select>
     </div>
+
+    <!-- نوع المستخدم -->
+    <div class="login-field">
+        <label>👤 حدد نوع المستخدم</label>
+        <select id="userTypeSelect">
+            <option value="">-- اختر نوع المستخدم --</option>
+            <option value="teacher">👨‍🏫 الأساتذة</option>
+            <option value="consultation">🧑‍💼 الإشراف التربوي</option>
+            <option value="parent">👨‍👩‍👧‍👦 أولياء الأمر</option>
+        </select>
+    </div>
+
+    <!-- دخول أولياء الأمر -->
+    <button id="continueBtn" class="login-btn" style="display:none;">
+        ➡️ متابعة
+    </button>
+
+    <!-- دخول الأساتذة / الإشراف -->
+    <div id="authBlock" style="display:none;">
+
+        <div class="login-field">
+            <label>🔐 كلمة المرور</label>
+            <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور">
+        </div>
+
+        <button id="loginBtn" class="login-btn">
+            🔓 تسجيل الدخول
+        </button>
+    </div>
+
+</div>
 
     <div id="mainContent"></div>
 </main>
