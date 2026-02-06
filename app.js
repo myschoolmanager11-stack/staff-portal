@@ -35,7 +35,7 @@ let FILES = {
 };
 
 /* =========================
-   رابط Google Apps Script الجديد
+   رابط Google Apps Script
 ========================= */
 const DRIVE_API_URL =
 "https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
@@ -49,7 +49,6 @@ fetch(DRIVE_API_URL)
     .then(r => r.json())
     .then(d => {
         INSTITUTIONS = d.institutions || [];
-
         institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
         INSTITUTIONS.forEach(inst => {
             const o = document.createElement("option");
@@ -65,34 +64,36 @@ fetch(DRIVE_API_URL)
    اختيار المؤسسة
 ========================= */
 institutionSelect.onchange = () => {
-    CURRENT_INSTITUTION =
-        INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
+    CURRENT_INSTITUTION = INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
+    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
 
-    if (!CURRENT_INSTITUTION) {
-        alert("⚠️ لم يتم اختيار مؤسسة صالحة");
-        return;
-    }
+    // مسح الملفات السابقة
+    Object.keys(FILES).forEach(k => FILES[k] = "");
 
-    // تحميل الملفات مباشرة من JSON
-    loadInstitutionFiles();
+    // تحميل جميع الملفات
+    const fileNames = ["Employes", "Students", "NewAbsented", "OldAbsented", "Password"];
+    fileNames.forEach(name => loadFile(name + ".txt", name));
 };
 
 /* =========================
-   تحميل ملفات المؤسسة من JSON
+   تحميل ملف من Drive
 ========================= */
-function loadInstitutionFiles() {
-    if (!CURRENT_INSTITUTION) return;
+function loadFile(fileName, key) {
+    const url = CURRENT_INSTITUTION.files[fileName.replace(".txt","").toLowerCase()];
+    if (!url) return;
 
-    ["employes", "students", "newAbsented", "oldAbsented", "password"].forEach(key => {
-        FILES[key.charAt(0).toUpperCase() + key.slice(1)] = 
-            CURRENT_INSTITUTION.files[key] || "";
-    });
-
-    // تحديث قائمة الموظفين
-    if (FILES.Employes) {
-        EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
-        renderUserList(EMPLOYES);
-    }
+    fetch(url)
+        .then(r => r.text())
+        .then(t => {
+            FILES[key] = t.trim();
+            console.log(`✅ تم تحميل ${fileName}:`, t.slice(0,50), '...');
+            // إذا كان الموظفون تم تحميلهم، حدّث القائمة
+            if (key === "Employes" && t.trim()) {
+                EMPLOYES = t.trim().split("\n").map(x => x.trim()).filter(x => x);
+                renderUserList(EMPLOYES);
+            }
+        })
+        .catch(err => console.warn("⚠️ فشل تحميل الملف:", fileName, err));
 }
 
 /* =========================
@@ -122,8 +123,11 @@ userTypeSelect.onchange = () => {
         userSelectBlock.style.display = "block";
         readQRBtn.style.display = "inline-block";
 
-        // قائمة الموظفين موجودة بالفعل
-        renderUserList(EMPLOYES);
+        // الموظفون تم تحميلهم عند اختيار المؤسسة
+        if (FILES.Employes) {
+            EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
+            renderUserList(EMPLOYES);
+        }
     }
 };
 
@@ -156,7 +160,9 @@ function renderUserList(list) {
 /* =========================
    زر قراءة QR
 ========================= */
-readQRBtn.onclick = () => alert("📷 QR reader غير مفعّل حاليا");
+readQRBtn.onclick = () => {
+    alert("📷 QR reader غير مفعّل حاليا، ضع الكود هنا");
+};
 
 /* =========================
    متابعة أولياء الأمر
@@ -167,8 +173,14 @@ continueBtn.onclick = () => openSession("parent");
    تسجيل الدخول
 ========================= */
 loginBtn.onclick = () => {
-    if (!SELECTED_USER) { alert("⚠️ الرجاء اختيار اسمك من القائمة"); return; }
-    if (!loginPassword.value) { alert("⚠️ الرجاء إدخال كلمة المرور أو مسح QR"); return; }
+    if (!SELECTED_USER) {
+        alert("⚠️ الرجاء اختيار اسمك من القائمة");
+        return;
+    }
+    if (!loginPassword.value) {
+        alert("⚠️ الرجاء إدخال كلمة المرور أو مسح QR");
+        return;
+    }
 
     const passwords = FILES.Password.split("\n").map(x => x.trim()).filter(x => x);
     if (passwords.includes(loginPassword.value)) openSession(userTypeSelect.value);
@@ -189,7 +201,6 @@ function openSession(type) {
         يمكنهم الاطلاع على الوثائق والملفات المختلفة بطريقة سهلة وسريعة، سواء عبر رابط مباشر أو مسح رمز QR.<br>
         الرجاء اختيار أحد العناصر من القائمة العلوية للمتابعة.
     `;
-
     fillMenu(type);
 }
 
@@ -198,7 +209,6 @@ function openSession(type) {
 ========================= */
 function fillMenu(type) {
     dropdownMenu.innerHTML = "";
-
     const MENUS = {
         parent: [
             "📘 سجل الغيابات",
@@ -240,7 +250,6 @@ function fillMenu(type) {
             "🗑️ مسح جميع الروابط المحفوظة"
         ]
     };
-
     MENUS[type].forEach(text => {
         const div = document.createElement("div");
         div.textContent = text;
@@ -274,6 +283,5 @@ function logout() {
 ========================= */
 function toggleMenu() {
     if (menuBtn.disabled) return;
-    dropdownMenu.style.display =
-        dropdownMenu.style.display === "block" ? "none" : "block";
+    dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
 }
