@@ -27,54 +27,49 @@
 
 <main class="container">
 
-    <!-- نافذة تسجيل الدخول -->
     <div id="loginModal" class="modal">
         <div class="modal-content login-content">
 
-    <h3>🔑 تسجيل الدخول</h3>
-   
-    <!-- المؤسسة -->
-    <div class="login-field">
-        <label>🏫 حدد المؤسسة التربوية</label>
-        <select id="institutionSelect">
-            <option value="">-- اختر المؤسسة --</option>
-        </select>
-    </div>
+            <h3>🔑 تسجيل الدخول</h3>
+
+            <div class="login-field">
+                <label>🏫 حدد المؤسسة التربوية</label>
+                <select id="institutionSelect">
+                    <option value="">-- اختر المؤسسة --</option>
+                </select>
+            </div>
 
             <div id="loadingInstitutions" class="loading-text">
-               ⏳ يرجى الإنتظار، جاري تحميل قائمة المؤسسات التربوية...
-         </div>
-            
-    <!-- نوع المستخدم -->
-    <div class="login-field">
-        <label>👤 حدد نوع المستخدم</label>
-        <select id="userTypeSelect">
-            <option value="">-- اختر نوع المستخدم --</option>
-            <option value="teacher">👨‍🏫 الأساتذة</option>
-            <option value="consultation">🧑‍💼 الإشراف التربوي</option>
-            <option value="parent">👨‍👩‍👧‍👦 أولياء الأمر</option>
-        </select>
-    </div>
+                ⏳ يرجى الإنتظار، جاري تحميل قائمة المؤسسات التربوية...
+            </div>
 
-    <!-- دخول أولياء الأمر -->
-    <button id="continueBtn" class="login-btn" style="display:none;">
-        ➡️ متابعة
-    </button>
+            <div class="login-field">
+                <label>👤 حدد نوع المستخدم</label>
+                <select id="userTypeSelect">
+                    <option value="">-- اختر نوع المستخدم --</option>
+                    <option value="teacher">👨‍🏫 الأساتذة</option>
+                    <option value="consultation">🧑‍💼 الإشراف التربوي</option>
+                    <option value="parent">👨‍👩‍👧‍👦 أولياء الأمر</option>
+                </select>
+            </div>
 
-    <!-- دخول الأساتذة / الإشراف -->
-    <div id="authBlock" style="display:none;">
+            <button id="continueBtn" class="login-btn" style="display:none;">
+                ➡️ متابعة
+            </button>
 
-        <div class="login-field">
-            <label>🔐 كلمة المرور</label>
-            <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور">
+            <div id="authBlock" style="display:none;">
+                <div class="login-field">
+                    <label>🔐 كلمة المرور</label>
+                    <input type="password" id="loginPassword">
+                </div>
+
+                <button id="loginBtn" class="login-btn">
+                    🔓 تسجيل الدخول
+                </button>
+            </div>
+
         </div>
-
-        <button id="loginBtn" class="login-btn">
-            🔓 تسجيل الدخول
-        </button>
     </div>
-
-</div>
 
     <div id="mainContent"></div>
 </main>
