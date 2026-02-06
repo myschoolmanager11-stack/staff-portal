@@ -71,20 +71,27 @@ fetch(DRIVE_API_URL)
 /* =========================
    اختيار المؤسسة
 ========================= */
-institutionSelect.onchange = () => {
+institutionSelect.onchange = async () => {
 
     CURRENT_INSTITUTION =
         INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
 
     if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
 
-    // تحميل ملفات المؤسسة
-    loadFile("Employes.txt", "Employes");
-    loadFile("Students.txt", "Students");
-    loadFile("NewAbsented.txt", "NewAbsented");
-    loadFile("OldAbsented.txt", "OldAbsented");
-    loadFile("Password.txt", "Password");
-};
+    // تحميل الملفات بشكل متوازي
+    await Promise.all([
+        loadFile("Employes.txt", "Employes"),
+        loadFile("Students.txt", "Students"),
+        loadFile("NewAbsented.txt", "NewAbsented"),
+        loadFile("OldAbsented.txt", "OldAbsented"),
+        loadFile("Password.txt", "Password")
+    ]);
+
+    // بعد تحميل الموظفين، تحديث القائمة
+    if (FILES.Employes) {
+        EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
+    }
+}
 
 /* =========================
    تحميل ملف من Drive
@@ -125,16 +132,15 @@ userTypeSelect.onchange = () => {
         return;
     }
 
-    if (["teacher", "consultation"].includes(userTypeSelect.value)) {
-        authBlock.style.display = "block";
-        userSelectBlock.style.display = "block";
-        readQRBtn.style.display = "inline-block";
+   if (["teacher", "consultation"].includes(userTypeSelect.value)) {
+    authBlock.style.display = "block";
+    userSelectBlock.style.display = "block";
+    readQRBtn.style.display = "inline-block";
 
-        // ملء قائمة الموظفين
-        EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
-        renderUserList(EMPLOYES);
-    }
-};
+    // عرض القائمة مباشرة بعد تحميل الموظفين
+    renderUserList(EMPLOYES);
+}
+
 
 /* =========================
    فلترة القائمة عند البحث
@@ -319,3 +325,4 @@ function toggleMenu() {
             ? "none"
             : "block";
 }
+
