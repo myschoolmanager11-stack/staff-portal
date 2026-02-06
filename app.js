@@ -70,30 +70,36 @@ institutionSelect.onchange = () => {
     // مسح الملفات السابقة
     Object.keys(FILES).forEach(k => FILES[k] = "");
 
-    // تحميل جميع الملفات
+    // تحميل الملفات مع رسالة حالة لكل ملف
     const fileNames = ["Employes", "Students", "NewAbsented", "OldAbsented", "Password"];
-    fileNames.forEach(name => loadFile(name + ".txt", name));
+    fileNames.forEach(name => loadFileWithStatus(name + ".txt", name));
 };
 
 /* =========================
-   تحميل ملف من Drive
+   تحميل ملف من Drive مع حالة تحميل
 ========================= */
-function loadFile(fileName, key) {
+function loadFileWithStatus(fileName, key) {
     const url = CURRENT_INSTITUTION.files[fileName.replace(".txt","").toLowerCase()];
-    if (!url) return;
+    if (!url) {
+        console.warn(`⚠️ رابط ${fileName} غير موجود!`);
+        return;
+    }
+
+    // عرض رسالة تحميل للمستخدم
+    console.log(`⏳ جاري تحميل الملف: ${fileName} ...`);
 
     fetch(url)
         .then(r => r.text())
         .then(t => {
             FILES[key] = t.trim();
-            console.log(`✅ تم تحميل ${fileName}:`, t.slice(0,50), '...');
+            console.log(`✅ تم تحميل ${fileName} (${t.length} بايت)`);
             // إذا كان الموظفون تم تحميلهم، حدّث القائمة
             if (key === "Employes" && t.trim()) {
                 EMPLOYES = t.trim().split("\n").map(x => x.trim()).filter(x => x);
                 renderUserList(EMPLOYES);
             }
         })
-        .catch(err => console.warn("⚠️ فشل تحميل الملف:", fileName, err));
+        .catch(err => console.warn(`❌ فشل تحميل الملف ${fileName}:`, err));
 }
 
 /* =========================
@@ -127,6 +133,8 @@ userTypeSelect.onchange = () => {
         if (FILES.Employes) {
             EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
             renderUserList(EMPLOYES);
+        } else {
+            console.log("⚠️ الموظفون لم يتم تحميلهم بعد، يرجى الانتظار قليلاً.");
         }
     }
 };
