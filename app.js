@@ -24,59 +24,74 @@ let EMPLOYES = [];
 let SELECTED_USER = "";
 
 /* =========================
-   بيانات تجريبية للمؤسسات والموظفين
+   ملفات المؤسسة
 ========================= */
-INSTITUTIONS = [
-    {
-        name: "متوسطة الشهيد بكير تركي محمد بن حسن (المدية)",
-        employes: ["أحمد بن سعيد", "محمد علي", "سميرة خضر"]
-    },
-    {
-        name: "متوسطة خنوش أحمد (الجزائر)",
-        employes: ["ليلى عبد الله", "نور الدين", "فاطمة الزهراء"]
-    },
-    {
-        name: "متوسطة رمضاني حسوني (بسكرة)",
-        employes: ["خالد منصور", "هشام كريم", "أسماء حسين"]
-    }
-];
+let FILES = {
+    Employes: "",
+    Students: "",
+    NewAbsented: "",
+    OldAbsented: "",
+    Password: ""
+};
 
 /* =========================
-   تحميل قائمة المؤسسات
+   رابط Google Apps Script
+========================= */
+const DRIVE_API_URL =
+"https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
+
+/* =========================
+   تحميل المؤسسات
 ========================= */
 loadingInstitutions.style.display = "block";
 
-institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
-
-INSTITUTIONS.forEach(inst => {
-    const o = document.createElement("option");
-    o.value = inst.name;
-    o.textContent = "🏫 " + inst.name;
-    institutionSelect.appendChild(o);
-});
-
-loadingInstitutions.style.display = "none";
+fetch(DRIVE_API_URL)
+.then(r => r.json())
+.then(d => {
+    INSTITUTIONS = d.institutions || [];
+    institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
+    INSTITUTIONS.forEach(inst => {
+        const o = document.createElement("option");
+        o.value = inst.name;
+        o.textContent = "🏫 " + inst.name;
+        institutionSelect.appendChild(o);
+    });
+})
+.catch(() => alert("❌ فشل تحميل قائمة المؤسسات"))
+.finally(() => loadingInstitutions.style.display = "none");
 
 /* =========================
    اختيار المؤسسة
 ========================= */
 institutionSelect.onchange = () => {
+    CURRENT_INSTITUTION = INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
+    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
 
-    CURRENT_INSTITUTION =
-        INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
-
-    if (!CURRENT_INSTITUTION) return;
-
-    // تحميل قائمة الموظفين مباشرة
-    EMPLOYES = CURRENT_INSTITUTION.employes;
-    renderUserList(EMPLOYES);
+    // تحميل جميع ملفات المؤسسة
+    loadFile("employes", "Employes");
+    loadFile("students", "Students");
+    loadFile("newabsented", "NewAbsented");
+    loadFile("oldabsented", "OldAbsented");
+    loadFile("password", "Password");
 };
+
+/* =========================
+   تحميل ملف من Drive
+========================= */
+function loadFile(fileKey, targetKey) {
+    const url = CURRENT_INSTITUTION.files[fileKey];
+    if (!url) return;
+
+    fetch(url)
+    .then(r => r.text())
+    .then(t => FILES[targetKey] = t.trim())
+    .catch(() => console.warn("⚠️ فشل تحميل الملف:", fileKey));
+}
 
 /* =========================
    تغيير نوع المستخدم
 ========================= */
 userTypeSelect.onchange = () => {
-
     authBlock.style.display = "none";
     continueBtn.style.display = "none";
     userSelectBlock.style.display = "none";
@@ -95,12 +110,13 @@ userTypeSelect.onchange = () => {
         return;
     }
 
-    if (["teacher", "consultation"].includes(userTypeSelect.value)) {
+    if (["teacher","consultation"].includes(userTypeSelect.value)) {
         authBlock.style.display = "block";
         userSelectBlock.style.display = "block";
         readQRBtn.style.display = "inline-block";
 
         // ملء قائمة الموظفين
+        EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
         renderUserList(EMPLOYES);
     }
 };
@@ -124,39 +140,39 @@ function renderUserList(list) {
         div.textContent = name;
         div.onclick = () => {
             SELECTED_USER = name;
-            userSearch.value = name; // تحديث حقل البحث باسم المختار
-            userList.innerHTML = ""; // إخفاء القائمة بعد الاختيار
+            userSearch.value = name;
+            userList.innerHTML = "";
         };
         userList.appendChild(div);
     });
 }
 
 /* =========================
+   زر قراءة QR
+========================= */
+readQRBtn.onclick = () => alert("📷 QR reader غير مفعّل حاليا");
+
+/* =========================
    متابعة أولياء الأمر
 ========================= */
-continueBtn.onclick = () => {
-    openSession("parent");
-};
+continueBtn.onclick = () => openSession("parent");
 
 /* =========================
    تسجيل الدخول
 ========================= */
 loginBtn.onclick = () => {
-
-    if (!SELECTED_USER) {
+    if (!SELECTED_USER && userTypeSelect.value !== "parent") {
         alert("⚠️ الرجاء اختيار اسمك من القائمة");
         return;
     }
 
-    if (!loginPassword.value) {
+    if (!loginPassword.value && userTypeSelect.value !== "parent") {
         alert("⚠️ الرجاء إدخال كلمة المرور أو مسح QR");
         return;
     }
 
-    // كلمة المرور التجريبية لكل المؤسسات
-    const VALID_PASSWORD = "1234";
-
-    if (loginPassword.value === VALID_PASSWORD) {
+    const passwords = FILES.Password.split("\n").map(x => x.trim()).filter(x => x);
+    if (userTypeSelect.value === "parent" || passwords.includes(loginPassword.value)) {
         openSession(userTypeSelect.value);
     } else {
         alert("❌ كلمة المرور غير صحيحة");
@@ -167,9 +183,7 @@ loginBtn.onclick = () => {
    فتح الجلسة
 ========================= */
 function openSession(type) {
-
     CURRENT_USER_TYPE = type;
-
     loginModal.style.display = "none";
     menuBtn.disabled = false;
     dropdownMenu.style.display = "none";
@@ -179,7 +193,6 @@ function openSession(type) {
         يمكنهم الاطلاع على الوثائق والملفات المختلفة بطريقة سهلة وسريعة، سواء عبر رابط مباشر أو مسح رمز QR.<br>
         الرجاء اختيار أحد العناصر من القائمة العلوية للمتابعة.
     `;
-
     fillMenu(type);
 }
 
@@ -187,9 +200,7 @@ function openSession(type) {
    تعبئة القائمة حسب النوع
 ========================= */
 function fillMenu(type) {
-
     dropdownMenu.innerHTML = "";
-
     const MENUS = {
         parent: [
             "📘 سجل الغيابات",
@@ -233,19 +244,11 @@ function fillMenu(type) {
     };
 
     MENUS[type].forEach(text => {
-
         const div = document.createElement("div");
         div.textContent = text;
         div.style.cursor = "pointer";
-
-        if (text.includes("مسح")) {
-            div.classList.add("menu-danger");
-        }
-
-        if (text.includes("تسجيل الخروج")) {
-            div.onclick = logout;
-        }
-
+        if (text.includes("مسح")) div.classList.add("menu-danger");
+        if (text.includes("تسجيل الخروج")) div.onclick = logout;
         dropdownMenu.appendChild(div);
     });
 }
@@ -254,7 +257,6 @@ function fillMenu(type) {
    تسجيل الخروج
 ========================= */
 function logout() {
-
     dropdownMenu.innerHTML = "";
     dropdownMenu.style.display = "none";
 
@@ -278,7 +280,5 @@ function logout() {
 function toggleMenu() {
     if (menuBtn.disabled) return;
     dropdownMenu.style.display =
-        dropdownMenu.style.display === "block"
-            ? "none"
-            : "block";
+        dropdownMenu.style.display === "block" ? "none" : "block";
 }
