@@ -63,29 +63,55 @@ fetch(DRIVE_API_URL)
 /* =========================
    اختيار المؤسسة
 ========================= */
-institutionSelect.onchange = () => {
+institutionSelect.onchange = async () => {
     CURRENT_INSTITUTION = INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
     if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
 
-    // تحميل جميع ملفات المؤسسة
-    loadFile("employes", "Employes");
-    loadFile("students", "Students");
-    loadFile("newabsented", "NewAbsented");
-    loadFile("oldabsented", "OldAbsented");
-    loadFile("password", "Password");
+    // تنظيف البيانات القديمة
+    EMPLOYES = [];
+    SELECTED_USER = "";
+    FILES = { Employes: "", Students: "", NewAbsented: "", OldAbsented: "", Password: "" };
+
+    try {
+        // تحميل جميع الملفات بشكل متزامن
+        await Promise.all([
+            loadFile("employes", "Employes"),
+            loadFile("students", "Students"),
+            loadFile("newabsented", "NewAbsented"),
+            loadFile("oldabsented", "OldAbsented"),
+            loadFile("password", "Password")
+        ]);
+
+        console.log("✅ جميع ملفات المؤسسة تم تحميلها بنجاح");
+
+        // ملء قائمة الموظفين إذا كان نوع المستخدم محدد مسبقًا
+        if (["teacher", "consultation"].includes(userTypeSelect.value)) {
+            EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
+            renderUserList(EMPLOYES);
+        }
+
+    } catch (err) {
+        console.error("❌ خطأ في تحميل ملفات المؤسسة:", err);
+        alert("فشل تحميل ملفات المؤسسة، يرجى المحاولة لاحقًا");
+    }
 };
 
 /* =========================
-   تحميل ملف من Drive
+   تحميل ملف من Drive بشكل متزامن
 ========================= */
 function loadFile(fileKey, targetKey) {
-    const url = CURRENT_INSTITUTION.files[fileKey];
-    if (!url) return;
+    return new Promise((resolve, reject) => {
+        const url = CURRENT_INSTITUTION.files[fileKey];
+        if (!url) return resolve(); // لا يوجد ملف
 
-    fetch(url)
-    .then(r => r.text())
-    .then(t => FILES[targetKey] = t.trim())
-    .catch(() => console.warn("⚠️ فشل تحميل الملف:", fileKey));
+        fetch(url)
+        .then(r => r.text())
+        .then(t => {
+            FILES[targetKey] = t.trim();
+            resolve();
+        })
+        .catch(err => reject(err));
+    });
 }
 
 /* =========================
@@ -282,3 +308,4 @@ function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
