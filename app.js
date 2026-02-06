@@ -43,16 +43,15 @@ const DRIVE_API_URL =
 /* =========================
    تحميل المؤسسات
 ========================= */
-loadingInstitutions.style.display = "block";
-
-fetch(DRIVE_API_URL)
-    .then(r => r.json())
-    .then(d => {
+async function loadInstitutions() {
+    loadingInstitutions.style.display = "block";
+    try {
+        const r = await fetch(DRIVE_API_URL);
+        const d = await r.json();
 
         INSTITUTIONS = d.institutions;
 
-        institutionSelect.innerHTML =
-            `<option value="">-- اختر المؤسسة --</option>`;
+        institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
 
         d.institutions.forEach(inst => {
             const o = document.createElement("option");
@@ -60,13 +59,17 @@ fetch(DRIVE_API_URL)
             o.textContent = "🏫 " + inst.name;
             institutionSelect.appendChild(o);
         });
-    })
-    .catch(() => {
+
+    } catch (err) {
+        console.error(err);
         alert("❌ فشل تحميل قائمة المؤسسات");
-    })
-    .finally(() => {
+    } finally {
         loadingInstitutions.style.display = "none";
-    });
+    }
+}
+
+// استدعاء الدالة مباشرة عند تحميل الصفحة
+loadInstitutions();
 
 /* =========================
    اختيار المؤسسة
@@ -325,4 +328,5 @@ function toggleMenu() {
             ? "none"
             : "block";
 }
+
 
