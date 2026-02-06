@@ -43,17 +43,29 @@ const DRIVE_API_URL =
 /* =========================
    تحميل المؤسسات
 ========================= */
+const institutionSelect = document.getElementById("institutionSelect");
+const loadingInstitutions = document.getElementById("loadingInstitutions");
+
+let INSTITUTIONS = [];
+
 async function loadInstitutions() {
     loadingInstitutions.style.display = "block";
+    institutionSelect.innerHTML = `<option value="">-- جارٍ التحميل --</option>`;
     try {
-        const r = await fetch(DRIVE_API_URL);
-        const d = await r.json();
+        const response = await fetch(DRIVE_API_URL);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
 
-        INSTITUTIONS = d.institutions;
+        console.log("Data from Drive:", data); // ✅ هذا لمعرفة ما تم استرجاعه
+
+        if (!data.institutions || !Array.isArray(data.institutions)) {
+            throw new Error("⚠️ البيانات من Drive غير صالحة");
+        }
+
+        INSTITUTIONS = data.institutions;
 
         institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
-
-        d.institutions.forEach(inst => {
+        INSTITUTIONS.forEach(inst => {
             const o = document.createElement("option");
             o.value = inst.name;
             o.textContent = "🏫 " + inst.name;
@@ -62,13 +74,14 @@ async function loadInstitutions() {
 
     } catch (err) {
         console.error(err);
-        alert("❌ فشل تحميل قائمة المؤسسات");
+        institutionSelect.innerHTML = `<option value="">❌ فشل التحميل</option>`;
+        alert("❌ فشل تحميل قائمة المؤسسات، تحقق من الرابط أو الاتصال بالإنترنت");
     } finally {
         loadingInstitutions.style.display = "none";
     }
 }
 
-// استدعاء الدالة مباشرة عند تحميل الصفحة
+// استدعاء الدالة عند تحميل الصفحة
 loadInstitutions();
 
 /* =========================
@@ -328,5 +341,6 @@ function toggleMenu() {
             ? "none"
             : "block";
 }
+
 
 
