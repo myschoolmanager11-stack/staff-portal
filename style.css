@@ -122,12 +122,30 @@ body {
     display: none;
 }
 
+/* قائمة أسماء المستخدمين */
+.list-container {
+    border: 1px solid #c5c9ff;
+    border-radius: 6px;
+    max-height: 120px;
+    overflow-y: auto;
+    padding: 0;
+    margin-top: 4px;
+}
+
+.list-container div {
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.list-container div:hover {
+    background-color: #f0f4ff;
+}
+
 .app-footer {
     background: #3f51b5;
     color: white;
     padding: 8px;
 }
-
 
 .footer-marquee {
     white-space: nowrap;
