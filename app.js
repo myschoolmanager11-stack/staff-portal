@@ -24,51 +24,38 @@ let EMPLOYES = [];
 let SELECTED_USER = "";
 
 /* =========================
-   ملفات المؤسسة (محملة في الذاكرة)
+   بيانات تجريبية للمؤسسات والموظفين
 ========================= */
-let FILES = {
-    Employes: "",
-    Students: "",
-    NewAbsented: "",
-    OldAbsented: "",
-    Password: ""
-};
-
-/* =========================
-   رابط Google Apps Script
-========================= */
-const DRIVE_API_URL =
-"https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
-
-/* =========================
-   تحميل المؤسسات
-========================= */
-async function loadInstitutions() {
-    loadingInstitutions.style.display = "block";
-    institutionSelect.innerHTML = `<option value="">-- جارٍ التحميل --</option>`;
-    try {
-        const res = await fetch(DRIVE_API_URL);
-        const data = await res.json();
-
-        INSTITUTIONS = data.institutions || [];
-
-        institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
-        INSTITUTIONS.forEach(inst => {
-            const o = document.createElement("option");
-            o.value = inst.name;
-            o.textContent = "🏫 " + inst.name;
-            institutionSelect.appendChild(o);
-        });
-
-    } catch (err) {
-        console.error(err);
-        alert("❌ فشل تحميل قائمة المؤسسات");
-        institutionSelect.innerHTML = `<option value="">❌ فشل التحميل</option>`;
-    } finally {
-        loadingInstitutions.style.display = "none";
+INSTITUTIONS = [
+    {
+        name: "متوسطة الشهيد بكير تركي محمد بن حسن (المدية)",
+        employes: ["أحمد بن سعيد", "محمد علي", "سميرة خضر"]
+    },
+    {
+        name: "متوسطة خنوش أحمد (الجزائر)",
+        employes: ["ليلى عبد الله", "نور الدين", "فاطمة الزهراء"]
+    },
+    {
+        name: "متوسطة رمضاني حسوني (بسكرة)",
+        employes: ["خالد منصور", "هشام كريم", "أسماء حسين"]
     }
-}
-loadInstitutions();
+];
+
+/* =========================
+   تحميل قائمة المؤسسات
+========================= */
+loadingInstitutions.style.display = "block";
+
+institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
+
+INSTITUTIONS.forEach(inst => {
+    const o = document.createElement("option");
+    o.value = inst.name;
+    o.textContent = "🏫 " + inst.name;
+    institutionSelect.appendChild(o);
+});
+
+loadingInstitutions.style.display = "none";
 
 /* =========================
    اختيار المؤسسة
@@ -78,49 +65,11 @@ institutionSelect.onchange = () => {
     CURRENT_INSTITUTION =
         INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
 
-    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
+    if (!CURRENT_INSTITUTION) return;
 
-    // تحميل ملفات المؤسسة
-    loadFile("Employes.txt", "Employes");
-    loadFile("Students.txt", "Students");
-    loadFile("NewAbsented.txt", "NewAbsented");
-    loadFile("OldAbsented.txt", "OldAbsented");
-
-    // كلمة المرور: تحقق إذا كان الرابط موجود
-    if (CURRENT_INSTITUTION.files.password) {
-        loadFile("Password.txt", "Password");
-    } else {
-        FILES.Password = ""; // لا توجد كلمة مرور
-    }
-};
-
-/* =========================
-   تسجيل الدخول الأساتذة / الإشراف
-========================= */
-loginBtn.onclick = () => {
-
-    if (!SELECTED_USER) {
-        alert("⚠️ الرجاء اختيار اسمك من القائمة");
-        return;
-    }
-
-    if (FILES.Password) {
-        if (!loginPassword.value) {
-            alert("⚠️ الرجاء إدخال كلمة المرور أو مسح QR");
-            return;
-        }
-
-        const passwords = FILES.Password.split("\n").map(x => x.trim()).filter(x => x);
-
-        if (passwords.includes(loginPassword.value)) {
-            openSession(userTypeSelect.value);
-        } else {
-            alert("❌ كلمة المرور غير صحيحة");
-        }
-    } else {
-        // إذا لم توجد كلمة مرور، السماح بالدخول مباشرة
-        openSession(userTypeSelect.value);
-    }
+    // تحميل قائمة الموظفين مباشرة
+    EMPLOYES = CURRENT_INSTITUTION.employes;
+    renderUserList(EMPLOYES);
 };
 
 /* =========================
@@ -152,64 +101,6 @@ userTypeSelect.onchange = () => {
         readQRBtn.style.display = "inline-block";
 
         // ملء قائمة الموظفين
-        if (FILES.Employes) {
-            EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
-            renderUserList(EMPLOYES);
-        } else {
-            EMPLOYES = [];
-            userList.innerHTML = "<div style='color:red;padding:5px;'>⚠️ لا توجد أسماء موظفين.</div>";
-        }
-    }
-};
-
-/* =========================
-   تحميل ملف من Drive
-========================= */
-async function loadFile(fileName, key) {
-    const url = CURRENT_INSTITUTION.files[fileName.replace(".txt", "").toLowerCase()];
-    if (!url) {
-        FILES[key] = "";
-        return;
-    }
-    try {
-        const res = await fetch(url);
-        const text = await res.text();
-        FILES[key] = text.trim();
-    } catch (err) {
-        console.warn("⚠️ فشل تحميل الملف:", fileName);
-        FILES[key] = "";
-    }
-}
-
-/* =========================
-   تغيير نوع المستخدم
-========================= */
-userTypeSelect.onchange = () => {
-
-    authBlock.style.display = "none";
-    continueBtn.style.display = "none";
-    userSelectBlock.style.display = "none";
-    readQRBtn.style.display = "none";
-    loginPassword.value = "";
-    SELECTED_USER = "";
-
-    if (!institutionSelect.value) {
-        alert("⚠️ الرجاء اختيار المؤسسة أولاً");
-        userTypeSelect.value = "";
-        return;
-    }
-
-    if (userTypeSelect.value === "parent") {
-        continueBtn.style.display = "block";
-        return;
-    }
-
-    if (["teacher", "consultation"].includes(userTypeSelect.value)) {
-        authBlock.style.display = "block";
-        userSelectBlock.style.display = "block";
-        readQRBtn.style.display = "inline-block";
-
-        EMPLOYES = FILES.Employes ? FILES.Employes.split("\n").map(x => x.trim()).filter(x => x) : [];
         renderUserList(EMPLOYES);
     }
 };
@@ -233,19 +124,12 @@ function renderUserList(list) {
         div.textContent = name;
         div.onclick = () => {
             SELECTED_USER = name;
-            userSearch.value = name;
-            userList.innerHTML = "";
+            userSearch.value = name; // تحديث حقل البحث باسم المختار
+            userList.innerHTML = ""; // إخفاء القائمة بعد الاختيار
         };
         userList.appendChild(div);
     });
 }
-
-/* =========================
-   زر قراءة QR
-========================= */
-readQRBtn.onclick = () => {
-    alert("📷 QR reader غير مفعّل حاليا، ضع الكود هنا");
-};
 
 /* =========================
    متابعة أولياء الأمر
@@ -269,9 +153,10 @@ loginBtn.onclick = () => {
         return;
     }
 
-    const passwords = FILES.Password ? FILES.Password.split("\n").map(x => x.trim()).filter(x => x) : [];
+    // كلمة المرور التجريبية لكل المؤسسات
+    const VALID_PASSWORD = "1234";
 
-    if (passwords.includes(loginPassword.value)) {
+    if (loginPassword.value === VALID_PASSWORD) {
         openSession(userTypeSelect.value);
     } else {
         alert("❌ كلمة المرور غير صحيحة");
@@ -282,7 +167,9 @@ loginBtn.onclick = () => {
    فتح الجلسة
 ========================= */
 function openSession(type) {
+
     CURRENT_USER_TYPE = type;
+
     loginModal.style.display = "none";
     menuBtn.disabled = false;
     dropdownMenu.style.display = "none";
@@ -300,7 +187,9 @@ function openSession(type) {
    تعبئة القائمة حسب النوع
 ========================= */
 function fillMenu(type) {
+
     dropdownMenu.innerHTML = "";
+
     const MENUS = {
         parent: [
             "📘 سجل الغيابات",
@@ -344,11 +233,19 @@ function fillMenu(type) {
     };
 
     MENUS[type].forEach(text => {
+
         const div = document.createElement("div");
         div.textContent = text;
         div.style.cursor = "pointer";
-        if (text.includes("مسح")) div.classList.add("menu-danger");
-        if (text.includes("تسجيل الخروج")) div.onclick = logout;
+
+        if (text.includes("مسح")) {
+            div.classList.add("menu-danger");
+        }
+
+        if (text.includes("تسجيل الخروج")) {
+            div.onclick = logout;
+        }
+
         dropdownMenu.appendChild(div);
     });
 }
@@ -357,6 +254,7 @@ function fillMenu(type) {
    تسجيل الخروج
 ========================= */
 function logout() {
+
     dropdownMenu.innerHTML = "";
     dropdownMenu.style.display = "none";
 
@@ -384,8 +282,3 @@ function toggleMenu() {
             ? "none"
             : "block";
 }
-
-
-
-
-
