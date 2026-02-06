@@ -43,63 +43,76 @@ const DRIVE_API_URL =
 /* =========================
    تحميل المؤسسات
 ========================= */
-loadingInstitutions.style.display = "block";
+async function loadInstitutions() {
+    loadingInstitutions.style.display = "block";
+    institutionSelect.innerHTML = `<option value="">-- جارٍ التحميل --</option>`;
+    try {
+        const res = await fetch(DRIVE_API_URL);
+        const data = await res.json();
 
-fetch(DRIVE_API_URL)
-    .then(r => r.json())
-    .then(d => {
+        INSTITUTIONS = data.institutions || [];
 
-        INSTITUTIONS = d.institutions;
-
-        institutionSelect.innerHTML =
-            `<option value="">-- اختر المؤسسة --</option>`;
-
-        d.institutions.forEach(inst => {
+        institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
+        INSTITUTIONS.forEach(inst => {
             const o = document.createElement("option");
             o.value = inst.name;
             o.textContent = "🏫 " + inst.name;
             institutionSelect.appendChild(o);
         });
-    })
-    .catch(() => {
+
+    } catch (err) {
+        console.error(err);
         alert("❌ فشل تحميل قائمة المؤسسات");
-    })
-    .finally(() => {
+        institutionSelect.innerHTML = `<option value="">❌ فشل التحميل</option>`;
+    } finally {
         loadingInstitutions.style.display = "none";
-    });
+    }
+}
+loadInstitutions();
 
 /* =========================
    اختيار المؤسسة
 ========================= */
-institutionSelect.onchange = () => {
+institutionSelect.onchange = async () => {
 
     CURRENT_INSTITUTION =
         INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
 
     if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
 
-    // تحميل ملفات المؤسسة
-    loadFile("Employes.txt", "Employes");
-    loadFile("Students.txt", "Students");
-    loadFile("NewAbsented.txt", "NewAbsented");
-    loadFile("OldAbsented.txt", "OldAbsented");
-    loadFile("Password.txt", "Password");
+    // تحميل ملفات المؤسسة بشكل متزامن
+    await Promise.all([
+        loadFile("Employes.txt", "Employes"),
+        loadFile("Students.txt", "Students"),
+        loadFile("NewAbsented.txt", "NewAbsented"),
+        loadFile("OldAbsented.txt", "OldAbsented"),
+        loadFile("Password.txt", "Password")
+    ]);
+
+    // إذا كان نوع المستخدم مختار مسبقًا (teacher/consultation) نملأ قائمة الموظفين
+    if (["teacher", "consultation"].includes(userTypeSelect.value)) {
+        EMPLOYES = FILES.Employes ? FILES.Employes.split("\n").map(x => x.trim()).filter(x => x) : [];
+        renderUserList(EMPLOYES);
+    }
 };
 
 /* =========================
    تحميل ملف من Drive
 ========================= */
-function loadFile(fileName, key) {
-
-    const url =
-        CURRENT_INSTITUTION.files[fileName.replace(".txt", "").toLowerCase()];
-
-    if (!url) return;
-
-    fetch(url)
-        .then(r => r.text())
-        .then(t => FILES[key] = t.trim())
-        .catch(() => console.warn("⚠️ فشل تحميل الملف:", fileName));
+async function loadFile(fileName, key) {
+    const url = CURRENT_INSTITUTION.files[fileName.replace(".txt", "").toLowerCase()];
+    if (!url) {
+        FILES[key] = "";
+        return;
+    }
+    try {
+        const res = await fetch(url);
+        const text = await res.text();
+        FILES[key] = text.trim();
+    } catch (err) {
+        console.warn("⚠️ فشل تحميل الملف:", fileName);
+        FILES[key] = "";
+    }
 }
 
 /* =========================
@@ -130,8 +143,7 @@ userTypeSelect.onchange = () => {
         userSelectBlock.style.display = "block";
         readQRBtn.style.display = "inline-block";
 
-        // ملء قائمة الموظفين
-        EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
+        EMPLOYES = FILES.Employes ? FILES.Employes.split("\n").map(x => x.trim()).filter(x => x) : [];
         renderUserList(EMPLOYES);
     }
 };
@@ -155,8 +167,8 @@ function renderUserList(list) {
         div.textContent = name;
         div.onclick = () => {
             SELECTED_USER = name;
-            userSearch.value = name; // تحديث حقل البحث باسم المختار
-            userList.innerHTML = ""; // إخفاء القائمة بعد الاختيار
+            userSearch.value = name;
+            userList.innerHTML = "";
         };
         userList.appendChild(div);
     });
@@ -191,7 +203,7 @@ loginBtn.onclick = () => {
         return;
     }
 
-    const passwords = FILES.Password.split("\n").map(x => x.trim()).filter(x => x);
+    const passwords = FILES.Password ? FILES.Password.split("\n").map(x => x.trim()).filter(x => x) : [];
 
     if (passwords.includes(loginPassword.value)) {
         openSession(userTypeSelect.value);
@@ -204,9 +216,7 @@ loginBtn.onclick = () => {
    فتح الجلسة
 ========================= */
 function openSession(type) {
-
     CURRENT_USER_TYPE = type;
-
     loginModal.style.display = "none";
     menuBtn.disabled = false;
     dropdownMenu.style.display = "none";
@@ -224,9 +234,7 @@ function openSession(type) {
    تعبئة القائمة حسب النوع
 ========================= */
 function fillMenu(type) {
-
     dropdownMenu.innerHTML = "";
-
     const MENUS = {
         parent: [
             "📘 سجل الغيابات",
@@ -270,19 +278,11 @@ function fillMenu(type) {
     };
 
     MENUS[type].forEach(text => {
-
         const div = document.createElement("div");
         div.textContent = text;
         div.style.cursor = "pointer";
-
-        if (text.includes("مسح")) {
-            div.classList.add("menu-danger");
-        }
-
-        if (text.includes("تسجيل الخروج")) {
-            div.onclick = logout;
-        }
-
+        if (text.includes("مسح")) div.classList.add("menu-danger");
+        if (text.includes("تسجيل الخروج")) div.onclick = logout;
         dropdownMenu.appendChild(div);
     });
 }
@@ -291,7 +291,6 @@ function fillMenu(type) {
    تسجيل الخروج
 ========================= */
 function logout() {
-
     dropdownMenu.innerHTML = "";
     dropdownMenu.style.display = "none";
 
