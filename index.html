@@ -9,7 +9,6 @@
 <body>
 
 <header class="top-bar">
-
     <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" disabled>
         ☰
     </button>
@@ -22,7 +21,6 @@
     </div>
 
     <div class="dropdown-menu" id="dropdownMenu"></div>
-
 </header>
 
 <main class="container">
@@ -53,14 +51,10 @@
                 </select>
             </div>
 
-            <button id="continueBtn" class="login-btn" style="display:none;">
-                ➡️ متابعة
-            </button>
-
-            <div id="userSelectBlock" style="display:none;" class="login-field">
-                <label>👤 اختر اسمك</label>
-                <input type="text" id="userSearch" placeholder="ابحث عن اسمك...">
-                <div id="userList" class="list-container"></div>
+            <div id="userSelectBlock" style="display:none;">
+                <label>📝 اختر اسمك</label>
+                <input type="text" id="userSearch" placeholder="ابحث باسمك هنا...">
+                <div id="userList" class="user-list"></div>
             </div>
 
             <div id="authBlock" style="display:none;">
@@ -68,15 +62,13 @@
                     <label>🔐 كلمة المرور</label>
                     <input type="password" id="loginPassword">
                 </div>
-
-                <button id="readQRBtn" style="display:none;" class="login-btn">
-                    📷 قراءة QR
-                </button>
-
-                <button id="loginBtn" class="login-btn">
-                    🔓 تسجيل الدخول
-                </button>
             </div>
+
+            <button id="readQRBtn" style="display:none;">📷 قراءة QR</button>
+            <button id="continueBtn" class="login-btn" style="display:none;">
+                ➡️ متابعة
+            </button>
+            <button id="loginBtn" class="login-btn">🔓 تسجيل الدخول</button>
 
         </div>
     </div>
