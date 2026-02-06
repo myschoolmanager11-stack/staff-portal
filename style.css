@@ -42,19 +42,11 @@ body {
     cursor: pointer;
 }
 
-.menu-btn:disabled {
-    opacity: 0.5;
-}
+.menu-btn:disabled { opacity: 0.5; }
 
-.app-title {
-    flex: 1;
-    text-align: center;
-}
+.app-title { flex: 1; text-align: center; }
 
-.welcome-text {
-    font-size: 8pt;
-    color: #cfd8dc;
-}
+.welcome-text { font-size: 8pt; color: #cfd8dc; }
 
 .dropdown-menu {
     position: absolute;
@@ -74,14 +66,8 @@ body {
     color: #3f51b5;
 }
 
-.dropdown-menu div:hover {
-    background: #f0f4ff;
-}
-
-.menu-danger {
-    color: #d32f2f;
-    font-weight: bold;
-}
+.dropdown-menu div:hover { background: #f0f4ff; }
+.menu-danger { color: #d32f2f; font-weight: bold; }
 
 .modal {
     position: fixed;
@@ -99,61 +85,31 @@ body {
     width: 360px;
 }
 
-.login-field label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: #3f51b5;
-}
-
+.login-field label { display: block; font-weight: 600; margin-bottom: 4px; color: #3f51b5; }
 .login-field select,
-.login-field input {
-    width: 100%;
-    padding: 7px;
-    border-radius: 6px;
-    border: 1px solid #c5c9ff;
-}
+.login-field input { width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #c5c9ff; }
 
-.loading-text {
-    font-size: 8.5pt;
-    color: #3f51b5;
-    text-align: center;
-    margin-top: 6px;
-    display: none;
-}
+.loading-text { font-size: 8.5pt; color: #3f51b5; text-align: center; margin-top: 6px; }
 
-/* قائمة أسماء المستخدمين */
-.list-container {
-    border: 1px solid #c5c9ff;
-    border-radius: 6px;
-    max-height: 120px;
-    overflow-y: auto;
-    padding: 0;
-    margin-top: 4px;
-}
-
-.list-container div {
-    padding: 6px 10px;
-    cursor: pointer;
-}
-
-.list-container div:hover {
-    background-color: #f0f4ff;
-}
-
-.app-footer {
-    background: #3f51b5;
-    color: white;
-    padding: 8px;
-}
-
+.app-footer { background: #3f51b5; color: white; padding: 8px; }
 .footer-marquee {
     white-space: nowrap;
     font-size: 13px;
     animation: move 25s linear infinite;
 }
+@keyframes move { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 
-@keyframes move {
-    from { transform: translateX(-100%); }
-    to   { transform: translateX(100%); }
+/* قائمة الموظفين */
+.user-list {
+    border: 1px solid #c5c9ff;
+    max-height: 120px;
+    overflow-y: auto;
+    border-radius: 6px;
+    margin-top: 4px;
+    background: #fff;
 }
+.user-list div {
+    padding: 5px 8px;
+    cursor: pointer;
+}
+.user-list div:hover { background: #f0f4ff; }
