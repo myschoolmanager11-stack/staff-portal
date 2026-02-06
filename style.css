@@ -161,6 +161,14 @@ body {
     background: #fff;
 }
 
+.loading-text {
+    margin-top: 6px;
+    font-size: 8.5pt;
+    color: #3f51b5;
+    text-align: center;
+    display: none;
+}
+
 /* ===== Footer ===== */
 .app-footer {
     background: #3f51b5;
@@ -173,13 +181,14 @@ body {
 .footer-marquee {
     white-space: nowrap;
     font-size: 13px;
-    animation: move 20s linear infinite;
+    animation: move 25s linear infinite;
 }
 
 @keyframes move {
     from { transform: translateX(-100%); }
     to   { transform: translateX(100%); }
 }
+
 
 
 
