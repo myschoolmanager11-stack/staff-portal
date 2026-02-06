@@ -73,26 +73,92 @@ loadInstitutions();
 /* =========================
    اختيار المؤسسة
 ========================= */
-institutionSelect.onchange = async () => {
+institutionSelect.onchange = () => {
 
     CURRENT_INSTITUTION =
         INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
 
     if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
 
-    // تحميل ملفات المؤسسة بشكل متزامن
-    await Promise.all([
-        loadFile("Employes.txt", "Employes"),
-        loadFile("Students.txt", "Students"),
-        loadFile("NewAbsented.txt", "NewAbsented"),
-        loadFile("OldAbsented.txt", "OldAbsented"),
-        loadFile("Password.txt", "Password")
-    ]);
+    // تحميل ملفات المؤسسة
+    loadFile("Employes.txt", "Employes");
+    loadFile("Students.txt", "Students");
+    loadFile("NewAbsented.txt", "NewAbsented");
+    loadFile("OldAbsented.txt", "OldAbsented");
 
-    // إذا كان نوع المستخدم مختار مسبقًا (teacher/consultation) نملأ قائمة الموظفين
+    // كلمة المرور: تحقق إذا كان الرابط موجود
+    if (CURRENT_INSTITUTION.files.password) {
+        loadFile("Password.txt", "Password");
+    } else {
+        FILES.Password = ""; // لا توجد كلمة مرور
+    }
+};
+
+/* =========================
+   تسجيل الدخول الأساتذة / الإشراف
+========================= */
+loginBtn.onclick = () => {
+
+    if (!SELECTED_USER) {
+        alert("⚠️ الرجاء اختيار اسمك من القائمة");
+        return;
+    }
+
+    if (FILES.Password) {
+        if (!loginPassword.value) {
+            alert("⚠️ الرجاء إدخال كلمة المرور أو مسح QR");
+            return;
+        }
+
+        const passwords = FILES.Password.split("\n").map(x => x.trim()).filter(x => x);
+
+        if (passwords.includes(loginPassword.value)) {
+            openSession(userTypeSelect.value);
+        } else {
+            alert("❌ كلمة المرور غير صحيحة");
+        }
+    } else {
+        // إذا لم توجد كلمة مرور، السماح بالدخول مباشرة
+        openSession(userTypeSelect.value);
+    }
+};
+
+/* =========================
+   تغيير نوع المستخدم
+========================= */
+userTypeSelect.onchange = () => {
+
+    authBlock.style.display = "none";
+    continueBtn.style.display = "none";
+    userSelectBlock.style.display = "none";
+    readQRBtn.style.display = "none";
+    loginPassword.value = "";
+    SELECTED_USER = "";
+
+    if (!institutionSelect.value) {
+        alert("⚠️ الرجاء اختيار المؤسسة أولاً");
+        userTypeSelect.value = "";
+        return;
+    }
+
+    if (userTypeSelect.value === "parent") {
+        continueBtn.style.display = "block";
+        return;
+    }
+
     if (["teacher", "consultation"].includes(userTypeSelect.value)) {
-        EMPLOYES = FILES.Employes ? FILES.Employes.split("\n").map(x => x.trim()).filter(x => x) : [];
-        renderUserList(EMPLOYES);
+        authBlock.style.display = "block";
+        userSelectBlock.style.display = "block";
+        readQRBtn.style.display = "inline-block";
+
+        // ملء قائمة الموظفين
+        if (FILES.Employes) {
+            EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
+            renderUserList(EMPLOYES);
+        } else {
+            EMPLOYES = [];
+            userList.innerHTML = "<div style='color:red;padding:5px;'>⚠️ لا توجد أسماء موظفين.</div>";
+        }
     }
 };
 
@@ -318,3 +384,4 @@ function toggleMenu() {
             ? "none"
             : "block";
 }
+
