@@ -41,38 +41,49 @@ const DRIVE_API_URL =
 "https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
 
 /* =========================
-   تحميل المؤسسات
+   تحميل ملفات المؤسسة مع فحص المحتوى
 ========================= */
-loadingInstitutions.style.display = "block";
+function loadFile(fileName, key, callback) {
+    const url = CURRENT_INSTITUTION.files[fileName.replace(".txt", "").toLowerCase()];
+    if (!url) return;
 
-fetch(DRIVE_API_URL)
-    .then(r => r.json())
-    .then(d => {
-        INSTITUTIONS = d.institutions || [];
-        institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
-        INSTITUTIONS.forEach(inst => {
-            const o = document.createElement("option");
-            o.value = inst.name;
-            o.textContent = "🏫 " + inst.name;
-            institutionSelect.appendChild(o);
+    fetch(url)
+        .then(r => {
+            if (!r.ok) throw new Error("فشل تحميل الملف");
+            return r.text();
+        })
+        .then(t => {
+            FILES[key] = t.trim();
+            console.log(`✅ تم تحميل الملف: ${key}`);
+            console.log(FILES[key].slice(0, 200)); // عرض أول 200 حرف للتحقق
+            if (callback) callback(); // استدعاء الدالة التالية بعد التحميل
+        })
+        .catch(e => {
+            console.warn("⚠️ فشل تحميل الملف:", fileName, e);
+            alert(`❌ فشل تحميل ملف ${fileName}, يرجى المحاولة لاحقًا`);
         });
-    })
-    .catch(() => alert("❌ فشل تحميل قائمة المؤسسات"))
-    .finally(() => loadingInstitutions.style.display = "none");
+}
 
 /* =========================
-   اختيار المؤسسة
+   بعد اختيار المؤسسة
 ========================= */
 institutionSelect.onchange = () => {
-    CURRENT_INSTITUTION = INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
+    CURRENT_INSTITUTION =
+        INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
+
     if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
 
-    // مسح الملفات السابقة
-    Object.keys(FILES).forEach(k => FILES[k] = "");
+    // تحميل جميع الملفات بالتتابع
+    loadFile("Employes.txt", "Employes", () => {
+        console.log("📄 قائمة الموظفين جاهزة للعرض");
+        EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
+        renderUserList(EMPLOYES); // عرض القائمة فور التحميل
+    });
 
-    // تحميل الملفات مع رسالة حالة لكل ملف
-    const fileNames = ["Employes", "Students", "NewAbsented", "OldAbsented", "Password"];
-    fileNames.forEach(name => loadFileWithStatus(name + ".txt", name));
+    loadFile("Students.txt", "Students");
+    loadFile("NewAbsented.txt", "NewAbsented");
+    loadFile("OldAbsented.txt", "OldAbsented");
+    loadFile("Password.txt", "Password");
 };
 
 /* =========================
@@ -293,3 +304,4 @@ function toggleMenu() {
     if (menuBtn.disabled) return;
     dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
 }
+
