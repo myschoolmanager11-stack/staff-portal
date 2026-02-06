@@ -43,71 +43,48 @@ const DRIVE_API_URL =
 /* =========================
    تحميل المؤسسات
 ========================= */
-const institutionSelect = document.getElementById("institutionSelect");
-const loadingInstitutions = document.getElementById("loadingInstitutions");
+loadingInstitutions.style.display = "block";
 
-let INSTITUTIONS = [];
+fetch(DRIVE_API_URL)
+    .then(r => r.json())
+    .then(d => {
 
-async function loadInstitutions() {
-    loadingInstitutions.style.display = "block";
-    institutionSelect.innerHTML = `<option value="">-- جارٍ التحميل --</option>`;
-    try {
-        const response = await fetch(DRIVE_API_URL);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
+        INSTITUTIONS = d.institutions;
 
-        console.log("Data from Drive:", data); // ✅ هذا لمعرفة ما تم استرجاعه
+        institutionSelect.innerHTML =
+            `<option value="">-- اختر المؤسسة --</option>`;
 
-        if (!data.institutions || !Array.isArray(data.institutions)) {
-            throw new Error("⚠️ البيانات من Drive غير صالحة");
-        }
-
-        INSTITUTIONS = data.institutions;
-
-        institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
-        INSTITUTIONS.forEach(inst => {
+        d.institutions.forEach(inst => {
             const o = document.createElement("option");
             o.value = inst.name;
             o.textContent = "🏫 " + inst.name;
             institutionSelect.appendChild(o);
         });
-
-    } catch (err) {
-        console.error(err);
-        institutionSelect.innerHTML = `<option value="">❌ فشل التحميل</option>`;
-        alert("❌ فشل تحميل قائمة المؤسسات، تحقق من الرابط أو الاتصال بالإنترنت");
-    } finally {
+    })
+    .catch(() => {
+        alert("❌ فشل تحميل قائمة المؤسسات");
+    })
+    .finally(() => {
         loadingInstitutions.style.display = "none";
-    }
-}
-
-// استدعاء الدالة عند تحميل الصفحة
-loadInstitutions();
+    });
 
 /* =========================
    اختيار المؤسسة
 ========================= */
-institutionSelect.onchange = async () => {
+institutionSelect.onchange = () => {
 
     CURRENT_INSTITUTION =
         INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
 
     if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
 
-    // تحميل الملفات بشكل متوازي
-    await Promise.all([
-        loadFile("Employes.txt", "Employes"),
-        loadFile("Students.txt", "Students"),
-        loadFile("NewAbsented.txt", "NewAbsented"),
-        loadFile("OldAbsented.txt", "OldAbsented"),
-        loadFile("Password.txt", "Password")
-    ]);
-
-    // بعد تحميل الموظفين، تحديث القائمة
-    if (FILES.Employes) {
-        EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
-    }
-}
+    // تحميل ملفات المؤسسة
+    loadFile("Employes.txt", "Employes");
+    loadFile("Students.txt", "Students");
+    loadFile("NewAbsented.txt", "NewAbsented");
+    loadFile("OldAbsented.txt", "OldAbsented");
+    loadFile("Password.txt", "Password");
+};
 
 /* =========================
    تحميل ملف من Drive
@@ -148,15 +125,16 @@ userTypeSelect.onchange = () => {
         return;
     }
 
-   if (["teacher", "consultation"].includes(userTypeSelect.value)) {
-    authBlock.style.display = "block";
-    userSelectBlock.style.display = "block";
-    readQRBtn.style.display = "inline-block";
+    if (["teacher", "consultation"].includes(userTypeSelect.value)) {
+        authBlock.style.display = "block";
+        userSelectBlock.style.display = "block";
+        readQRBtn.style.display = "inline-block";
 
-    // عرض القائمة مباشرة بعد تحميل الموظفين
-    renderUserList(EMPLOYES);
-}
-
+        // ملء قائمة الموظفين
+        EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
+        renderUserList(EMPLOYES);
+    }
+};
 
 /* =========================
    فلترة القائمة عند البحث
@@ -341,6 +319,3 @@ function toggleMenu() {
             ? "none"
             : "block";
 }
-
-
-
