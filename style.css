@@ -1,4 +1,3 @@
-/* ===== الخط الافتراضي للنظام ===== */
 body,
 button,
 input,
@@ -12,7 +11,6 @@ td {
     font-size: 9pt;
 }
 
-/* ===== الهيكل ===== */
 body {
     margin: 0;
     background: #f2f4ff;
@@ -22,12 +20,8 @@ body {
     flex-direction: column;
 }
 
-.container {
-    flex: 1;
-    padding: 20px;
-}
+.container { flex: 1; padding: 20px; }
 
-/* ===== الشريط العلوي ===== */
 .top-bar {
     background: #3f51b5;
     color: white;
@@ -38,7 +32,6 @@ body {
     position: relative;
 }
 
-/* زر القائمة */
 .menu-btn {
     background: #ff9800;
     border: none;
@@ -51,10 +44,8 @@ body {
 
 .menu-btn:disabled {
     opacity: 0.5;
-    cursor: default;
 }
 
-/* العنوان */
 .app-title {
     flex: 1;
     text-align: center;
@@ -65,7 +56,6 @@ body {
     color: #cfd8dc;
 }
 
-/* ===== القائمة ===== */
 .dropdown-menu {
     position: absolute;
     top: 55px;
@@ -88,17 +78,11 @@ body {
     background: #f0f4ff;
 }
 
-/* عنصر خطير */
 .menu-danger {
     color: #d32f2f;
     font-weight: bold;
 }
 
-.menu-danger:hover {
-    background: #fdeaea;
-}
-
-/* ===== Modal ===== */
 .modal {
     position: fixed;
     inset: 0;
@@ -115,29 +99,6 @@ body {
     width: 360px;
 }
 
-/* ===== الجدول ===== */
-.table-container {
-    max-height: 200px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
-
-#loginTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#loginTable tr:hover {
-    background: #eef2ff;
-    cursor: pointer;
-}
-
-#loginTable tr.selected {
-    background: #2196f3;
-    color: white;
-}
-
 .login-field label {
     display: block;
     font-weight: 600;
@@ -151,44 +112,18 @@ body {
     padding: 7px;
     border-radius: 6px;
     border: 1px solid #c5c9ff;
-    background: #f9faff;
-}
-
-.login-field select:focus,
-.login-field input:focus {
-    outline: none;
-    border-color: #3f51b5;
-    background: #fff;
 }
 
 .loading-text {
-    margin-top: 6px;
     font-size: 8.5pt;
     color: #3f51b5;
     text-align: center;
+    margin-top: 6px;
     display: none;
 }
 
-/* ===== Footer ===== */
 .app-footer {
     background: #3f51b5;
     color: white;
     padding: 8px;
-    overflow: hidden;
-    margin-top: 30px;
 }
-
-.footer-marquee {
-    white-space: nowrap;
-    font-size: 13px;
-    animation: move 25s linear infinite;
-}
-
-@keyframes move {
-    from { transform: translateX(-100%); }
-    to   { transform: translateX(100%); }
-}
-
-
-
-
