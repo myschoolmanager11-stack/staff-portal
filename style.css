@@ -127,3 +127,15 @@ body {
     color: white;
     padding: 8px;
 }
+
+
+.footer-marquee {
+    white-space: nowrap;
+    font-size: 13px;
+    animation: move 25s linear infinite;
+}
+
+@keyframes move {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(100%); }
+}
