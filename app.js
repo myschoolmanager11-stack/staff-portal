@@ -95,40 +95,6 @@ institutionSelect.onchange = () => {
 };
 
 /* =========================
-   اختبار تحميل قائمة الموظفين
-========================= */
-function testLoadEmployes() {
-    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files.employes) {
-        console.warn("⚠️ الرابط غير موجود لقائمة الموظفين!");
-        return;
-    }
-
-    fetch(CURRENT_INSTITUTION.files.employes)
-        .then(response => {
-            if (!response.ok) throw new Error("فشل تحميل الملف من الرابط");
-            return response.text();
-        })
-        .then(text => {
-            console.log("✅ الملف تم تحميله بنجاح!");
-            console.log("محتوى الموظفين:\n", text);
-            // وضعه في الذاكرة
-            FILES.Employes = text.trim();
-        })
-        .catch(err => {
-            console.error("❌ خطأ أثناء تحميل الملف:", err);
-        });
-}
-
-institutionSelect.onchange = () => {
-    CURRENT_INSTITUTION = INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
-
-    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
-
-    // تجربة تحميل الموظفين فقط
-    testLoadEmployes();
-};
-
-/* =========================
    تسجيل الدخول الأساتذة / الإشراف
 ========================= */
 loginBtn.onclick = () => {
@@ -418,6 +384,7 @@ function toggleMenu() {
             ? "none"
             : "block";
 }
+
 
 
 
