@@ -12,9 +12,16 @@ const loginBtn = document.getElementById("loginBtn");
 const loginPassword = document.getElementById("loginPassword");
 const loadingInstitutions = document.getElementById("loadingInstitutions");
 
+const userSelectBlock = document.getElementById("userSelectBlock");
+const userSearch = document.getElementById("userSearch");
+const userList = document.getElementById("userList");
+const readQRBtn = document.getElementById("readQRBtn");
+
 let INSTITUTIONS = [];
 let CURRENT_INSTITUTION = null;
 let CURRENT_USER_TYPE = null;
+let EMPLOYES = [];
+let SELECTED_USER = "";
 
 /* =========================
    ملفات المؤسسة (محملة في الذاكرة)
@@ -102,7 +109,10 @@ userTypeSelect.onchange = () => {
 
     authBlock.style.display = "none";
     continueBtn.style.display = "none";
+    userSelectBlock.style.display = "none";
+    readQRBtn.style.display = "none";
     loginPassword.value = "";
+    SELECTED_USER = "";
 
     if (!institutionSelect.value) {
         alert("⚠️ الرجاء اختيار المؤسسة أولاً");
@@ -112,11 +122,51 @@ userTypeSelect.onchange = () => {
 
     if (userTypeSelect.value === "parent") {
         continueBtn.style.display = "block";
+        return;
     }
 
     if (["teacher", "consultation"].includes(userTypeSelect.value)) {
         authBlock.style.display = "block";
+        userSelectBlock.style.display = "block";
+        readQRBtn.style.display = "inline-block";
+
+        // ملء قائمة الموظفين
+        EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
+        renderUserList(EMPLOYES);
     }
+};
+
+/* =========================
+   فلترة القائمة عند البحث
+========================= */
+userSearch.oninput = () => {
+    const term = userSearch.value.trim().toLowerCase();
+    const filtered = EMPLOYES.filter(name => name.toLowerCase().includes(term));
+    renderUserList(filtered);
+};
+
+/* =========================
+   عرض القائمة
+========================= */
+function renderUserList(list) {
+    userList.innerHTML = "";
+    list.forEach(name => {
+        const div = document.createElement("div");
+        div.textContent = name;
+        div.onclick = () => {
+            SELECTED_USER = name;
+            userSearch.value = name; // تحديث حقل البحث باسم المختار
+            userList.innerHTML = ""; // إخفاء القائمة بعد الاختيار
+        };
+        userList.appendChild(div);
+    });
+}
+
+/* =========================
+   زر قراءة QR
+========================= */
+readQRBtn.onclick = () => {
+    alert("📷 QR reader غير مفعّل حاليا، ضع الكود هنا");
 };
 
 /* =========================
@@ -127,29 +177,27 @@ continueBtn.onclick = () => {
 };
 
 /* =========================
-   تسجيل دخول الأساتذة / الإشراف
+   تسجيل الدخول
 ========================= */
 loginBtn.onclick = () => {
 
+    if (!SELECTED_USER) {
+        alert("⚠️ الرجاء اختيار اسمك من القائمة");
+        return;
+    }
+
     if (!loginPassword.value) {
-        alert("⚠️ الرجاء إدخال كلمة المرور");
+        alert("⚠️ الرجاء إدخال كلمة المرور أو مسح QR");
         return;
     }
 
-    // كلمة المرور الخاصة بالمؤسسة (من Drive)
-    const VALID_PASSWORD = FILES.Password;
+    const passwords = FILES.Password.split("\n").map(x => x.trim()).filter(x => x);
 
-    if (!VALID_PASSWORD) {
-        alert("❌ كلمة مرور المؤسسة غير متوفرة");
-        return;
-    }
-
-    if (loginPassword.value !== VALID_PASSWORD) {
+    if (passwords.includes(loginPassword.value)) {
+        openSession(userTypeSelect.value);
+    } else {
         alert("❌ كلمة المرور غير صحيحة");
-        return;
     }
-
-    openSession(userTypeSelect.value);
 };
 
 /* =========================
@@ -248,11 +296,14 @@ function logout() {
     dropdownMenu.style.display = "none";
 
     loginPassword.value = "";
+    userSearch.value = "";
+    SELECTED_USER = "";
     userTypeSelect.value = "";
     institutionSelect.value = "";
 
     CURRENT_INSTITUTION = null;
     CURRENT_USER_TYPE = null;
+    EMPLOYES = [];
 
     menuBtn.disabled = true;
     loginModal.style.display = "flex";
@@ -262,9 +313,7 @@ function logout() {
    إظهار / إخفاء القائمة
 ========================= */
 function toggleMenu() {
-
     if (menuBtn.disabled) return;
-
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block"
             ? "none"
