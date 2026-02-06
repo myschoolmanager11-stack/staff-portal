@@ -37,13 +37,42 @@ let FILES = {
 /* =========================
    رابط Google Apps Script
 ========================= */
-const DRIVE_API_URL =
-"https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
+const DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
 
 /* =========================
-   تحميل ملفات المؤسسة مع فحص المحتوى
+   تحميل المؤسسات من السكريبت
+========================= */
+function loadInstitutions() {
+    loadingInstitutions.style.display = "block";
+
+    fetch(DRIVE_API_URL)
+        .then(r => r.json())
+        .then(d => {
+            INSTITUTIONS = d.institutions || [];
+
+            institutionSelect.innerHTML = `<option value="">-- اختر المؤسسة --</option>`;
+
+            INSTITUTIONS.forEach(inst => {
+                const o = document.createElement("option");
+                o.value = inst.name;
+                o.textContent = "🏫 " + inst.name;
+                institutionSelect.appendChild(o);
+            });
+        })
+        .catch(() => {
+            alert("❌ فشل تحميل قائمة المؤسسات");
+        })
+        .finally(() => {
+            loadingInstitutions.style.display = "none";
+        });
+}
+
+/* =========================
+   تحميل ملفات المؤسسة
 ========================= */
 function loadFile(fileName, key, callback) {
+    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
+
     const url = CURRENT_INSTITUTION.files[fileName.replace(".txt", "").toLowerCase()];
     if (!url) return;
 
@@ -55,8 +84,7 @@ function loadFile(fileName, key, callback) {
         .then(t => {
             FILES[key] = t.trim();
             console.log(`✅ تم تحميل الملف: ${key}`);
-            console.log(FILES[key].slice(0, 200)); // عرض أول 200 حرف للتحقق
-            if (callback) callback(); // استدعاء الدالة التالية بعد التحميل
+            if (callback) callback();
         })
         .catch(e => {
             console.warn("⚠️ فشل تحميل الملف:", fileName, e);
@@ -68,50 +96,25 @@ function loadFile(fileName, key, callback) {
    بعد اختيار المؤسسة
 ========================= */
 institutionSelect.onchange = () => {
-    CURRENT_INSTITUTION =
-        INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
+    CURRENT_INSTITUTION = INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
 
-    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
+    if (!CURRENT_INSTITUTION) return;
 
-    // تحميل جميع الملفات بالتتابع
+    // تحميل ملف الموظفين أولاً
     loadFile("Employes.txt", "Employes", () => {
-        console.log("📄 قائمة الموظفين جاهزة للعرض");
-        EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
-        renderUserList(EMPLOYES); // عرض القائمة فور التحميل
+        if (FILES.Employes) {
+            EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
+            console.log("📄 قائمة الموظفين جاهزة للعرض");
+            renderUserList(EMPLOYES);
+        }
     });
 
+    // تحميل باقي الملفات بدون callback
     loadFile("Students.txt", "Students");
     loadFile("NewAbsented.txt", "NewAbsented");
     loadFile("OldAbsented.txt", "OldAbsented");
     loadFile("Password.txt", "Password");
 };
-
-/* =========================
-   تحميل ملف من Drive مع حالة تحميل
-========================= */
-function loadFileWithStatus(fileName, key) {
-    const url = CURRENT_INSTITUTION.files[fileName.replace(".txt","").toLowerCase()];
-    if (!url) {
-        console.warn(`⚠️ رابط ${fileName} غير موجود!`);
-        return;
-    }
-
-    // عرض رسالة تحميل للمستخدم
-    console.log(`⏳ جاري تحميل الملف: ${fileName} ...`);
-
-    fetch(url)
-        .then(r => r.text())
-        .then(t => {
-            FILES[key] = t.trim();
-            console.log(`✅ تم تحميل ${fileName} (${t.length} بايت)`);
-            // إذا كان الموظفون تم تحميلهم، حدّث القائمة
-            if (key === "Employes" && t.trim()) {
-                EMPLOYES = t.trim().split("\n").map(x => x.trim()).filter(x => x);
-                renderUserList(EMPLOYES);
-            }
-        })
-        .catch(err => console.warn(`❌ فشل تحميل الملف ${fileName}:`, err));
-}
 
 /* =========================
    تغيير نوع المستخدم
@@ -140,7 +143,6 @@ userTypeSelect.onchange = () => {
         userSelectBlock.style.display = "block";
         readQRBtn.style.display = "inline-block";
 
-        // الموظفون تم تحميلهم عند اختيار المؤسسة
         if (FILES.Employes) {
             EMPLOYES = FILES.Employes.split("\n").map(x => x.trim()).filter(x => x);
             renderUserList(EMPLOYES);
@@ -305,3 +307,7 @@ function toggleMenu() {
     dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
 }
 
+/* =========================
+   بدء تحميل المؤسسات عند فتح الصفحة
+========================= */
+loadInstitutions();
