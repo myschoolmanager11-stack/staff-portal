@@ -57,11 +57,21 @@
                 ➡️ متابعة
             </button>
 
+            <div id="userSelectBlock" style="display:none;" class="login-field">
+                <label>👤 اختر اسمك</label>
+                <input type="text" id="userSearch" placeholder="ابحث عن اسمك...">
+                <div id="userList" class="list-container"></div>
+            </div>
+
             <div id="authBlock" style="display:none;">
                 <div class="login-field">
                     <label>🔐 كلمة المرور</label>
                     <input type="password" id="loginPassword">
                 </div>
+
+                <button id="readQRBtn" style="display:none;" class="login-btn">
+                    📷 قراءة QR
+                </button>
 
                 <button id="loginBtn" class="login-btn">
                     🔓 تسجيل الدخول
