@@ -17,6 +17,17 @@ let CURRENT_INSTITUTION = null;
 let CURRENT_USER_TYPE = null;
 
 /* =========================
+   ملفات المؤسسة (محملة في الذاكرة)
+========================= */
+let FILES = {
+    Employes: "",
+    Students: "",
+    NewAbsented: "",
+    OldAbsented: "",
+    Password: ""
+};
+
+/* =========================
    رابط Google Apps Script
 ========================= */
 const DRIVE_API_URL =
@@ -28,35 +39,61 @@ const DRIVE_API_URL =
 loadingInstitutions.style.display = "block";
 
 fetch(DRIVE_API_URL)
-  .then(r => r.json())
-  .then(d => {
+    .then(r => r.json())
+    .then(d => {
 
-      INSTITUTIONS = d.institutions;
+        INSTITUTIONS = d.institutions;
 
-      institutionSelect.innerHTML =
-          `<option value="">-- اختر المؤسسة --</option>`;
+        institutionSelect.innerHTML =
+            `<option value="">-- اختر المؤسسة --</option>`;
 
-      d.institutions.forEach(inst => {
-          const o = document.createElement("option");
-          o.value = inst.name;
-          o.textContent = "🏫 " + inst.name;
-          institutionSelect.appendChild(o);
-      });
-  })
-  .catch(() => {
-      alert("❌ فشل تحميل قائمة المؤسسات");
-  })
-  .finally(() => {
-      loadingInstitutions.style.display = "none";
-  });
+        d.institutions.forEach(inst => {
+            const o = document.createElement("option");
+            o.value = inst.name;
+            o.textContent = "🏫 " + inst.name;
+            institutionSelect.appendChild(o);
+        });
+    })
+    .catch(() => {
+        alert("❌ فشل تحميل قائمة المؤسسات");
+    })
+    .finally(() => {
+        loadingInstitutions.style.display = "none";
+    });
 
 /* =========================
    اختيار المؤسسة
 ========================= */
 institutionSelect.onchange = () => {
+
     CURRENT_INSTITUTION =
         INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
+
+    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files) return;
+
+    // تحميل ملفات المؤسسة
+    loadFile("Employes.txt", "Employes");
+    loadFile("Students.txt", "Students");
+    loadFile("NewAbsented.txt", "NewAbsented");
+    loadFile("OldAbsented.txt", "OldAbsented");
+    loadFile("Password.txt", "Password");
 };
+
+/* =========================
+   تحميل ملف من Drive
+========================= */
+function loadFile(fileName, key) {
+
+    const url =
+        CURRENT_INSTITUTION.files[fileName.replace(".txt", "").toLowerCase()];
+
+    if (!url) return;
+
+    fetch(url)
+        .then(r => r.text())
+        .then(t => FILES[key] = t.trim())
+        .catch(() => console.warn("⚠️ فشل تحميل الملف:", fileName));
+}
 
 /* =========================
    تغيير نوع المستخدم
@@ -74,12 +111,10 @@ userTypeSelect.onchange = () => {
     }
 
     if (userTypeSelect.value === "parent") {
-        // أولياء الأمر
         continueBtn.style.display = "block";
     }
 
     if (["teacher", "consultation"].includes(userTypeSelect.value)) {
-        // أساتذة أو إشراف
         authBlock.style.display = "block";
     }
 };
@@ -101,8 +136,13 @@ loginBtn.onclick = () => {
         return;
     }
 
-    /* 🔐 كلمة مرور مؤقتة (لكل مؤسسة لاحقًا) */
-    const VALID_PASSWORD = "1983";
+    // كلمة المرور الخاصة بالمؤسسة (من Drive)
+    const VALID_PASSWORD = FILES.Password;
+
+    if (!VALID_PASSWORD) {
+        alert("❌ كلمة مرور المؤسسة غير متوفرة");
+        return;
+    }
 
     if (loginPassword.value !== VALID_PASSWORD) {
         alert("❌ كلمة المرور غير صحيحة");
@@ -151,7 +191,7 @@ function fillMenu(type) {
             "☎️ اتصل بنا",
             "🚪 تسجيل الخروج",
             "🗑️ مسح جميع الروابط المحفوظة"
-                 ],
+        ],
         teacher: [
             "👥 القوائم الإسمية للتلاميذ",
             "📝 قوائم صب النقاط",
@@ -165,11 +205,11 @@ function fillMenu(type) {
             "☎️ اتصل بنا",
             "🚪 تسجيل الخروج",
             "🗑️ مسح جميع الروابط المحفوظة"
-                 ],
+        ],
         consultation: [
             "👥 القوائم الإسمية",
             "⏳ الغائبون قبل اليوم",
-            "📍 متاابعة غيابات اليوم",
+            "📍 متابعة غيابات اليوم",
             "📅 جدول توقيت الأستاذ",
             "📆 جدول التوقيت الأسبوعي للتلاميذ",
             "🗓️ رزنامة الفروض والاختبارات",
@@ -178,7 +218,7 @@ function fillMenu(type) {
             "☎️ اتصل بنا",
             "🚪 تسجيل الخروج",
             "🗑️ مسح جميع الروابط المحفوظة"
-                      ]
+        ]
     };
 
     MENUS[type].forEach(text => {
@@ -230,4 +270,3 @@ function toggleMenu() {
             ? "none"
             : "block";
 }
-
