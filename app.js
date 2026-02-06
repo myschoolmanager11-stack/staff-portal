@@ -6,11 +6,11 @@ const userTypeSelect = document.getElementById("userTypeSelect");
 const loginModal = document.getElementById("loginModal");
 const menuBtn = document.getElementById("menuBtn");
 const dropdownMenu = document.getElementById("dropdownMenu");
-
 const authBlock = document.getElementById("authBlock");
 const continueBtn = document.getElementById("continueBtn");
 const loginBtn = document.getElementById("loginBtn");
 const loginPassword = document.getElementById("loginPassword");
+const loadingInstitutions = document.getElementById("loadingInstitutions");
 
 let INSTITUTIONS = [];
 let CURRENT_INSTITUTION = null;
@@ -25,27 +25,30 @@ const DRIVE_API_URL =
 /* =========================
    تحميل المؤسسات
 ========================= */
+loadingInstitutions.style.display = "block";
+
 fetch(DRIVE_API_URL)
-    .then(r => r.json())
-    .then(d => {
+  .then(r => r.json())
+  .then(d => {
 
-        if (!d.institutions || d.institutions.length === 0) {
-            alert("⚠️ لا توجد مؤسسات متاحة");
-            return;
-        }
+      INSTITUTIONS = d.institutions;
 
-        INSTITUTIONS = d.institutions;
+      institutionSelect.innerHTML =
+          `<option value="">-- اختر المؤسسة --</option>`;
 
-        d.institutions.forEach(inst => {
-            const o = document.createElement("option");
-            o.value = inst.name;
-            o.textContent = inst.name;
-            institutionSelect.appendChild(o);
-        });
-    })
-    .catch(() => {
-        alert("❌ فشل تحميل المؤسسات");
-    });
+      d.institutions.forEach(inst => {
+          const o = document.createElement("option");
+          o.value = inst.name;
+          o.textContent = "🏫 " + inst.name;
+          institutionSelect.appendChild(o);
+      });
+  })
+  .catch(() => {
+      alert("❌ فشل تحميل قائمة المؤسسات");
+  })
+  .finally(() => {
+      loadingInstitutions.style.display = "none";
+  });
 
 /* =========================
    اختيار المؤسسة
@@ -138,32 +141,44 @@ function fillMenu(type) {
 
     const MENUS = {
         parent: [
-            "📘 سجل الغيابات والمراسلات",
+            "📘 سجل الغيابات",
+            "📘 سجل المراسلات الإدارية",
             "🏫 جدول استقبال الأولياء",
+            "📆 جدول التوقيت الأسبوعي للتلاميذ",
             "🗓️ رزنامة الفروض والاختبارات",
-            "📅 جدول التوقيت الأسبوعي",
-            "📄 استمارات ووثائق مختلفة",
+            "📄 استمارات ووثائق مختلفة للتلاميذ",
+            "📢 إعلانات",
             "☎️ اتصل بنا",
             "🚪 تسجيل الخروج",
             "🗑️ مسح جميع الروابط المحفوظة"
-        ],
+                 ],
         teacher: [
             "👥 القوائم الإسمية للتلاميذ",
             "📝 قوائم صب النقاط",
+            "⏳ الغائبون قبل اليوم",
+            "🚨 إرسال غيابات اليوم",
             "📅 جدول توقيت الأستاذ",
-            "📄 استمارات ووثائق",
+            "📆 جدول التوقيت الأسبوعي للتلاميذ",
+            "🗓️ رزنامة الفروض والاختبارات",
+            "📄 استمارات ووثائق مختلفة للاساتذة",
+            "📢 إعلانات",
             "☎️ اتصل بنا",
             "🚪 تسجيل الخروج",
             "🗑️ مسح جميع الروابط المحفوظة"
-        ],
+                 ],
         consultation: [
-            "👥 القوائم الإسمية للتلاميذ",
-            "📊 متابعة الغيابات",
-            "📄 استمارات ووثائق",
+            "👥 القوائم الإسمية",
+            "⏳ الغائبون قبل اليوم",
+            "📍 متاابعة غيابات اليوم",
+            "📅 جدول توقيت الأستاذ",
+            "📆 جدول التوقيت الأسبوعي للتلاميذ",
+            "🗓️ رزنامة الفروض والاختبارات",
+            "📄 استمارات ووثائق مختلفة للإشراف التربوي",
+            "📢 إعلانات",
             "☎️ اتصل بنا",
             "🚪 تسجيل الخروج",
             "🗑️ مسح جميع الروابط المحفوظة"
-        ]
+                      ]
     };
 
     MENUS[type].forEach(text => {
@@ -215,3 +230,4 @@ function toggleMenu() {
             ? "none"
             : "block";
 }
+
