@@ -1,127 +1,173 @@
+/* =========================
+   المتغيرات العامة
+========================= */
 const institutionSelect = document.getElementById("institutionSelect");
 const userTypeSelect = document.getElementById("userTypeSelect");
-const proceedBtn = document.getElementById("proceedBtn");
-const usersBlock = document.getElementById("usersBlock");
-const loginTableBody = document.querySelector("#loginTable tbody");
-const loginPassword = document.getElementById("loginPassword");
 const loginModal = document.getElementById("loginModal");
 const menuBtn = document.getElementById("menuBtn");
 const dropdownMenu = document.getElementById("dropdownMenu");
+const authBlock = document.getElementById("authBlock");
+const continueBtn = document.getElementById("continueBtn");
+const loginBtn = document.getElementById("loginBtn");
+const loginPassword = document.getElementById("loginPassword");
 
 let INSTITUTIONS = [];
 let CURRENT_INSTITUTION = null;
-let selectedUser = null;
 
+/* =========================
+   رابط Google Apps Script
+========================= */
 const DRIVE_API_URL =
 "https://script.google.com/macros/s/AKfycbyZWTTH6vL-eG41clB1VS6lZe09OLe34KZSBzcInTRed4RnDDuSxgMX9fl0MIrDKVxeRg/exec";
 
-/* تحميل المؤسسات */
+/* =========================
+   تحميل المؤسسات
+========================= */
 fetch(DRIVE_API_URL)
-    .then(r => r.json())
-    .then(d => {
-        INSTITUTIONS = d.institutions;
+  .then(r => r.json())
+  .then(d => {
+      INSTITUTIONS = d.institutions;
 
-        d.institutions.forEach(inst => {
-            const o = document.createElement("option");
-            o.value = inst.name;
-            o.textContent = inst.name;
-            institutionSelect.appendChild(o);
-        });
-    });
+      d.institutions.forEach(inst => {
+          const o = document.createElement("option");
+          o.value = inst.name;
+          o.textContent = inst.name;
+          institutionSelect.appendChild(o);
+      });
+  });
 
-/* التحكم في الواجهة */
-function updateUI() {
-    proceedBtn.disabled = !(institutionSelect.value && userTypeSelect.value);
-
-    usersBlock.style.display =
-        ["teacher", "consultation"].includes(userTypeSelect.value)
-        ? "block" : "none";
-}
-
-institutionSelect.onchange = () => {
-    CURRENT_INSTITUTION =
-        INSTITUTIONS.find(i => i.name === institutionSelect.value) || null;
-
-    updateUI();
-
-    if (usersBlock.style.display === "block") {
-        loadEmployees();
-    }
-};
-
+/* =========================
+   تغيير نوع المستخدم
+========================= */
 userTypeSelect.onchange = () => {
-    updateUI();
-    if (usersBlock.style.display === "block") loadEmployees();
-};
 
-/* تحميل الموظفين حسب المؤسسة */
-function loadEmployees() {
-
-    if (!CURRENT_INSTITUTION || !CURRENT_INSTITUTION.files.employes) {
-        alert("❌ ملف الموظفين غير موجود لهذه المؤسسة");
-        return;
-    }
-
-    fetch(CURRENT_INSTITUTION.files.employes)
-        .then(res => {
-            if (!res.ok) throw new Error();
-            return res.text();
-        })
-        .then(text => {
-
-            loginTableBody.innerHTML = "";
-            selectedUser = null;
-
-            text.split("\n")
-                .map(l => l.trim())
-                .filter(l => l && l.includes(";"))
-                .forEach(line => {
-
-                    const parts = line.split(";");
-
-                    const name = parts[0].trim();
-                    const pass = parts[1].trim();
-
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `<td>${name}</td><td>—</td>`;
-
-                    tr.onclick = () => {
-                        selectedUser = { name, pass };
-                        [...loginTableBody.children]
-                            .forEach(r => r.classList.remove("selected"));
-                        tr.classList.add("selected");
-                    };
-
-                    loginTableBody.appendChild(tr);
-                });
-        })
-        .catch(() => alert("❌ تعذر تحميل ملف الموظفين"));
-}
-
-/* تسجيل الدخول */
-proceedBtn.onclick = () => {
+    authBlock.style.display = "none";
+    continueBtn.style.display = "none";
 
     if (userTypeSelect.value === "parent") {
-        finishLogin("ولي الأمر");
+        // أولياء الأمر: دخول مباشر
+        continueBtn.style.display = "block";
+    }
+
+    if (["teacher", "consultation"].includes(userTypeSelect.value)) {
+        // أساتذة أو إشراف: كلمة مرور
+        authBlock.style.display = "block";
+    }
+};
+
+/* =========================
+   متابعة أولياء الأمر
+========================= */
+continueBtn.onclick = () => {
+    openSession("parent");
+};
+
+/* =========================
+   تسجيل دخول الأساتذة / الإشراف
+========================= */
+loginBtn.onclick = () => {
+
+    if (!loginPassword.value) {
+        alert("⚠️ الرجاء إدخال كلمة المرور");
         return;
     }
 
-    if (!selectedUser)
-        return alert("⚠️ اختر المستخدم");
+    /* 🔐 آلية كلمة المرور
+       - كلمة المرور تكون موحدة لكل مؤسسة
+       - تُخزَّن لاحقًا في ملف Config أو Google Drive
+       - هنا نضعها مؤقتًا ثابتة للاختبار
+    */
+    const VALID_PASSWORD = "1983";
 
-    if (loginPassword.value !== selectedUser.pass)
-        return alert("❌ كلمة المرور غير صحيحة");
+    if (loginPassword.value !== VALID_PASSWORD) {
+        alert("❌ كلمة المرور غير صحيحة");
+        return;
+    }
 
-    finishLogin(selectedUser.name);
+    openSession(userTypeSelect.value);
 };
 
-function finishLogin(name) {
+/* =========================
+   فتح الجلسة حسب النوع
+========================= */
+function openSession(type) {
+
     loginModal.style.display = "none";
     menuBtn.disabled = false;
-    alert("مرحبًا " + name);
+
+    document.getElementById("welcomeText").innerHTML = `
+        يُعتبر الفضاء الرقمي منصة نوعية ووسيلة تكنولوجية رقمية فعالة لتعزيز التواصل بين الإدارة وأعضاء الأسرة التربوية.<br>
+        يمكنهم الاطلاع على الوثائق والملفات المختلفة بطريقة سهلة وسريعة، سواء عبر رابط مباشر أو مسح رمز QR.<br>
+        الرجاء اختيار أحد العناصر من القائمة العلوية للمتابعة.
+    `;
+
+    fillMenu(type);
 }
 
-/* القائمة */
+/* =========================
+   تعبئة القائمة
+========================= */
+function fillMenu(type) {
+
+    dropdownMenu.innerHTML = "";
+
+    const MENUS = {
+        parent: [
+            "📘 سجل الغيابات والمراسلات",
+            "🏫 جدول استقبال الأولياء",
+            "🗓️ رزنامة الفروض والاختبارات",
+            "📅 جدول التوقيت الأسبوعي",
+            "📄 استمارات ووثائق مختلفة",
+            "☎️ اتصل بنا",
+            "🚪 تسجيل الخروج",
+            "🗑️ مسح جميع الروابط المحفوظة"
+        ],
+        teacher: [
+            "👥 القوائم الإسمية للتلاميذ",
+            "📝 قوائم صب النقاط",
+            "📅 جدول توقيت الأستاذ",
+            "📄 استمارات ووثائق",
+            "☎️ اتصل بنا",
+            "🚪 تسجيل الخروج",
+            "🗑️ مسح جميع الروابط المحفوظة"
+        ],
+        consultation: [
+            "👥 القوائم الإسمية للتلاميذ",
+            "📊 متابعة الغيابات",
+            "📄 استمارات ووثائق",
+            "☎️ اتصل بنا",
+            "🚪 تسجيل الخروج",
+            "🗑️ مسح جميع الروابط المحفوظة"
+        ]
+    };
+
+    MENUS[type].forEach(item => {
+        const div = document.createElement("div");
+        div.textContent = item;
+
+        if (item.includes("مسح")) div.classList.add("danger");
+        if (item.includes("تسجيل الخروج")) div.onclick = logout;
+
+        dropdownMenu.appendChild(div);
+    });
+}
+
+/* =========================
+   تسجيل الخروج
+========================= */
+function logout() {
+
+    dropdownMenu.innerHTML = "";
+    loginPassword.value = "";
+    userTypeSelect.value = "";
+    menuBtn.disabled = true;
+
+    loginModal.style.display = "flex";
+}
+
+/* =========================
+   إظهار / إخفاء القائمة
+========================= */
 function toggleMenu() {
     dropdownMenu.style.display =
         dropdownMenu.style.display === "block" ? "none" : "block";
