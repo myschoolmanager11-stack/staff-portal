@@ -1,73 +1,148 @@
-/* ===== عام ===== */
-body, button, input, select {
+/* ===== توحيد الخط ===== */
+body,
+button,
+input,
+select,
+table,
+.dropdown-menu,
+.modal-content {
     font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-    font-size: 9pt;
+    font-size: 8.5pt;
 }
 
-/* ===== المودال ===== */
+/* ===== الهيكل ===== */
+body {
+    margin: 0;
+    background: #f2f4ff;
+    direction: rtl;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+    padding: 20px;
+}
+
+/* ===== الشريط العلوي ===== */
+.top-bar {
+    background: #3f51b5;
+    color: white;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+/* زر القائمة */
+.menu-btn {
+    background: #ff9800;
+    border: none;
+    color: white;
+    font-size: 20px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.menu-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* العنوان */
+.app-title {
+    flex: 1;
+    text-align: center;
+}
+
+.welcome-text {
+    font-size: 8pt;
+    color: #cfd8dc;
+}
+
+/* ===== القائمة ===== */
+.dropdown-menu {
+    position: absolute;
+    top: 55px;
+    right: 10px;
+    background: white;
+    border-radius: 8px;
+    min-width: 220px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    display: none;
+    z-index: 1000;
+}
+
+.dropdown-menu div {
+    padding: 10px 14px;
+    cursor: pointer;
+    color: #3f51b5;
+}
+
+.dropdown-menu div:hover {
+    background: #f0f4ff;
+}
+
+/* عنصر خطير */
+.menu-danger {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.menu-danger:hover {
+    background: #fdeaea;
+}
+
+/* ===== Modal ===== */
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.45);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .modal-content {
-    background: #fff;
+    background: white;
     padding: 20px;
+    border-radius: 10px;
     width: 360px;
-    border-radius: 8px;
 }
 
-/* ===== الحقول ===== */
-.login-field {
-    margin-bottom: 10px;
-}
-
-.login-field label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.login-field input,
-.login-field select {
-    width: 100%;
-    padding: 6px;
-    border-radius: 5px;
+/* ===== الجدول ===== */
+.table-container {
+    max-height: 200px;
+    overflow-y: auto;
     border: 1px solid #ccc;
+    border-radius: 6px;
 }
 
-/* ===== الأزرار ===== */
-.login-btn {
+#loginTable {
     width: 100%;
-    padding: 8px;
-    background: #1976d2;
-    color: white;
-    border: none;
-    border-radius: 5px;
+    border-collapse: collapse;
+}
+
+#loginTable tr:hover {
+    background: #eef2ff;
     cursor: pointer;
 }
 
-.login-btn:hover {
-    opacity: 0.9;
-}
-
-/* عنصر خطير */
-.danger {
-    background: #d32f2f;
+#loginTable tr.selected {
+    background: #2196f3;
     color: white;
 }
 
-
-/* ===== الفوتر ===== */
+/* ===== Footer ===== */
 .app-footer {
     background: #3f51b5;
     color: white;
-    text-align: center;
     padding: 8px;
+    overflow: hidden;
+    margin-top: 30px;
 }
 
 .footer-marquee {
@@ -80,6 +155,3 @@ body, button, input, select {
     from { transform: translateX(-100%); }
     to   { transform: translateX(100%); }
 }
-
-
-
